@@ -72,3 +72,9 @@ create policy "Public property images" on storage.objects for select using (buck
 
 drop policy if exists "Admins upload property images" on storage.objects;
 create policy "Admins upload property images" on storage.objects for insert to authenticated with check (bucket_id = 'property-images' and exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator')));
+
+drop policy if exists "Admins update property images" on storage.objects;
+create policy "Admins update property images" on storage.objects for update to authenticated using (bucket_id = 'property-images' and exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator'))) with check (bucket_id = 'property-images' and exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator')));
+
+drop policy if exists "Admins delete property images" on storage.objects;
+create policy "Admins delete property images" on storage.objects for delete to authenticated using (bucket_id = 'property-images' and exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator')));

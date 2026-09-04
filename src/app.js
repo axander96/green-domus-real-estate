@@ -5,6 +5,7 @@ import './admin-overrides.css';
 import './description-overrides.css';
 import './rounded-panels.css';
 import './typography-overrides.css';
+import './admin-crud.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -54,9 +55,40 @@ let properties = JSON.parse(localStorage.getItem('green-domus-properties') || 'n
 let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
+let adminProperties = [];
+let adminMessage = '';
+let editingPropertyId = null;
+let adminLoading = false;
+let adminLoaded = false;
 
 function mapRemoteProperty(property, images = []) {
-  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order).map((image) => image.image_url), description: property.description };
+  const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
+  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
+}
+
+async function loadAdminProperties() {
+  if (!supabase || adminLoading) return;
+  adminLoading = true;
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) { adminLoading = false; return; }
+  const { data, error } = await supabase.from('properties').select('*').order('created_at', { ascending: false });
+  if (error) { adminMessage = error.message; adminLoading = false; adminLoaded = true; return; }
+  const { data: images } = data?.length ? await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id)) : { data: [] };
+  adminProperties = (data || []).map((property) => mapRemoteProperty(property, images || []));
+  adminLoading = false;
+  adminLoaded = true;
+  render();
+}
+
+async function uploadPropertyImages(propertyId, files) {
+  if (!supabase || !files.length) return [];
+  const uploaded = [];
+  for (const file of files) {
+    const path = `${propertyId}/${crypto.randomUUID()}-${file.name}`;
+    const { error } = await supabase.storage.from('property-images').upload(path, file, { upsert: false });
+    if (!error) uploaded.push(supabase.storage.from('property-images').getPublicUrl(path).data.publicUrl);
+  }
+  return uploaded;
 }
 
 async function syncProperties() {
@@ -109,6 +141,7 @@ function render() {
   if (footer) footer.outerHTML = footerTemplate();
   document.querySelector('.site-header')?.classList.toggle('is-floating', window.scrollY > 40);
   bindEvents();
+  if (hash === '#admin' && hasSupabase && !adminLoaded && !adminLoading) loadAdminProperties();
 }
 
 function headerTemplate() {
@@ -162,7 +195,14 @@ function adminModal() {
 }
 
 function adminPageTemplate() {
-  return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Inicia sesión para publicar y administrar las propiedades de Green Domus.</p></div>${adminModal()}</main></div>`;
+  const rows = adminProperties.map((property) => `<article class="admin-property-row"><img src="${property.image}" alt=""/><div class="admin-property-info"><div><span class="admin-status ${property.is_published ? 'published' : ''}">${property.is_published ? 'Publicada' : 'Borrador'}</span>${property.is_featured ? '<span class="admin-featured">Destacada</span>' : ''}</div><h3>${property.title}</h3><p>${propertyCode(property)} · ${property.location}</p><strong>${formatPrice(property.price, property.operation)}</strong></div><div class="admin-property-actions"><button type="button" data-admin-action="edit" data-property-id="${property.id}">Editar</button><button type="button" data-admin-action="toggle" data-property-id="${property.id}">${property.is_published ? 'Despublicar' : 'Publicar'}</button><button type="button" data-admin-action="feature" data-property-id="${property.id}">${property.is_featured ? 'Quitar destacada' : 'Destacar'}</button><button type="button" class="danger" data-admin-action="delete" data-property-id="${property.id}">Eliminar</button></div></article>`).join('');
+  const editing = adminProperties.find((property) => property.id === editingPropertyId);
+  return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Publica, edita y organiza tus propiedades desde un solo lugar.</p></div><section class="admin-console"><div class="admin-auth-bar"><div><strong>Acceso administrador</strong><span id="admin-session-label">${adminMessage || 'Inicia sesión para gestionar el catálogo.'}</span></div><form id="admin-auth-form"><input name="email" type="email" required placeholder="Correo"/><input name="password" type="password" required placeholder="Contraseña"/><button class="primary-button" type="submit">Iniciar sesión</button></form></div><p class="auth-status" id="admin-status">${adminMessage}</p><div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Inicia sesión para ver las propiedades de Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}</section></main></div>`;
+}
+
+function adminEditForm(property = {}) {
+  const existingImages = (property.galleryRecords || []).map((image) => `<div class="existing-image"><img src="${image.image_url}" alt=""/><button type="button" data-admin-action="delete-image" data-image-id="${image.id}" aria-label="Eliminar imagen">Eliminar</button></div>`).join('');
+  return `<div class="admin-editor" id="admin-editor"><div class="admin-editor-heading"><div><p class="eyebrow dark">${property.id ? 'EDITAR PROPIEDAD' : 'NUEVA PROPIEDAD'}</p><h2>${property.id ? property.title : 'Agregar propiedad'}</h2></div><button type="button" data-admin-action="close-editor">Cerrar</button></div><form id="admin-property-form" data-property-id="${property.id || ''}"><div class="form-columns"><label>Título<input name="title" required value="${property.title || ''}" /></label><label>Código<input name="code" required value="${property.code || ''}" /></label></div><div class="form-columns"><label>Tipo<select name="type">${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option ${property.type === type ? 'selected' : ''}>${type}</option>`).join('')}</select></label><label>Operación<select name="operation"><option ${property.operation === 'Venta' ? 'selected' : ''}>Venta</option><option ${property.operation === 'Alquiler' ? 'selected' : ''}>Alquiler</option></select></label></div><div class="form-columns"><label>Precio (USD)<input name="price" type="number" required value="${property.price || ''}" /></label><label>Área (m²)<input name="area" type="number" required value="${property.area || ''}" /></label></div><div class="form-columns"><label>Habitaciones<input name="beds" type="number" min="0" value="${property.beds || 0}" /></label><label>Baños<input name="baths" type="number" min="0" value="${property.baths || 0}" /></label></div><label>Ubicación<input name="location" required value="${property.location || ''}" /></label><label>Descripción<textarea name="description" rows="5" required>${property.description || ''}</textarea></label><label>Imagen principal<input name="cover_image" type="file" accept="image/*" ${property.id ? '' : 'required'} /><small class="file-help">${property.id ? 'Selecciona una imagen solo si deseas reemplazar la portada.' : 'La portada se guardará en Supabase Storage.'}</small></label><label>Galería de imágenes<input name="images" type="file" accept="image/*" multiple /><small class="file-help">Puedes seleccionar varias imágenes adicionales.</small></label>${existingImages ? `<div class="existing-images"><span>Imágenes guardadas</span>${existingImages}</div>` : ''}<div class="editor-options"><label><input name="is_published" type="checkbox" ${property.is_published !== false ? 'checked' : ''}/> Publicar propiedad</label><label><input name="is_featured" type="checkbox" ${property.is_featured ? 'checked' : ''}/> Destacar en inicio</label></div><button class="primary-button" type="submit">${property.id ? 'Guardar cambios' : 'Crear propiedad'} ${icon('arrow')}</button></form></div>`;
 }
 
 function filteredProperties() {
@@ -182,10 +222,52 @@ function bindEvents() {
   document.querySelector('[data-close]')?.addEventListener('click', () => document.querySelector('#admin-modal').classList.remove('open'));
   document.querySelector('#admin-modal')?.addEventListener('click', (event) => { if (event.target.id === 'admin-modal') event.currentTarget.classList.remove('open'); });
   document.querySelector('#auth-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const status = document.querySelector('#auth-status'); if (!supabase) { status.textContent = 'Configura Supabase para iniciar sesión.'; return; } const data = new FormData(event.target); const { error } = await supabase.auth.signInWithPassword({ email: data.get('email'), password: data.get('password') }); status.textContent = error ? error.message : 'Sesión iniciada. Ya puedes publicar propiedades.'; if (!error) await syncProperties(); });
+  document.querySelector('#admin-auth-form')?.addEventListener('submit', async (event) => { event.preventDefault(); if (!supabase) { adminMessage = 'Supabase no está configurado.'; render(); return; } const data = new FormData(event.target); const { error } = await supabase.auth.signInWithPassword({ email: data.get('email'), password: data.get('password') }); adminMessage = error ? error.message : 'Sesión iniciada correctamente.'; if (!error) await loadAdminProperties(); else render(); });
+  document.querySelectorAll('[data-admin-action]').forEach((button) => button.addEventListener('click', () => handleAdminAction(button.dataset.adminAction, Number(button.dataset.propertyId))));
+  document.querySelector('#admin-property-form')?.addEventListener('submit', saveAdminProperty);
   document.querySelector('#search-form')?.addEventListener('submit', (event) => { event.preventDefault(); if (window.location.hash !== '#all') window.location.hash = 'all'; else render(); });
   document.querySelector('#admin-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const data = new FormData(event.target); const gallery = String(data.get('gallery') || '').split(',').map((image) => image.trim()).filter(Boolean); const property = { id: Date.now(), code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: 0, baths: 0, tag: 'Nueva', image: data.get('image'), gallery, description: 'Una nueva propiedad de Green Domus, lista para descubrir.' };
     if (hasSupabase) { const { data: session } = await supabase.auth.getSession(); if (session.session) { const { data: created, error } = await supabase.from('properties').insert({ code: property.code, title: property.title, type: property.type, operation: property.operation, price: property.price, location: property.location, area: property.area, image_url: property.image, description: property.description, created_by: session.session.user.id }).select().single(); if (!error && created) { if (gallery.length) await supabase.from('property_images').insert(gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))); properties = [mapRemoteProperty(created, gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))), ...properties]; document.querySelector('#admin-modal').classList.remove('open'); render(); return; } } }
     properties = [property, ...properties]; localStorage.setItem('green-domus-properties', JSON.stringify(properties)); document.querySelector('#admin-modal').classList.remove('open'); render(); });
+}
+
+async function handleAdminAction(action, propertyId) {
+  if (action === 'new') { editingPropertyId = null; render(); setTimeout(() => document.querySelector('#admin-editor')?.scrollIntoView({ behavior: 'smooth' }), 0); return; }
+  if (action === 'close-editor') { editingPropertyId = null; render(); return; }
+  const property = adminProperties.find((item) => item.id === propertyId);
+  if (!property || !supabase) return;
+  if (action === 'edit') { editingPropertyId = propertyId; render(); setTimeout(() => document.querySelector('#admin-editor')?.scrollIntoView({ behavior: 'smooth' }), 0); return; }
+  if (action === 'delete') { if (!window.confirm(`¿Eliminar ${property.title}?`)) return; const { error } = await supabase.from('properties').delete().eq('id', propertyId); adminMessage = error ? error.message : 'Propiedad eliminada.'; if (!error) adminProperties = adminProperties.filter((item) => item.id !== propertyId); render(); return; }
+  if (action === 'delete-image') { const { error } = await supabase.from('property_images').delete().eq('id', propertyId); adminMessage = error ? error.message : 'Imagen eliminada.'; editingPropertyId = editingPropertyId || Number(document.querySelector('#admin-property-form')?.dataset.propertyId); if (!error) await loadAdminProperties(); else render(); return; }
+  const updates = action === 'toggle' ? { is_published: !property.is_published } : { is_featured: !property.is_featured };
+  const { error } = await supabase.from('properties').update(updates).eq('id', propertyId); adminMessage = error ? error.message : 'Cambios guardados.'; if (!error) Object.assign(property, updates); render();
+}
+
+async function saveAdminProperty(event) {
+  event.preventDefault();
+  if (!supabase) { adminMessage = 'Supabase no está configurado.'; render(); return; }
+  const form = event.target;
+  const data = new FormData(form);
+  const propertyId = Number(form.dataset.propertyId);
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) { adminMessage = 'Inicia sesión antes de guardar.'; render(); return; }
+  const existing = adminProperties.find((property) => property.id === propertyId);
+  const coverFile = data.get('cover_image');
+  if (!propertyId && (!(coverFile instanceof File) || !coverFile.size)) { adminMessage = 'Selecciona una imagen principal.'; render(); return; }
+  const payload = { code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: Number(data.get('beds') || 0), baths: Number(data.get('baths') || 0), description: data.get('description'), image_url: existing?.image || '', is_published: data.get('is_published') === 'on', is_featured: data.get('is_featured') === 'on', created_by: sessionData.session.user.id };
+  let saved;
+  let error;
+  if (propertyId) ({ data: saved, error } = await supabase.from('properties').update(payload).eq('id', propertyId).select().single());
+  else ({ data: saved, error } = await supabase.from('properties').insert(payload).select().single());
+  if (error) { adminMessage = error.message; render(); return; }
+  const files = [...(data.getAll('images') || [])].filter((file) => file instanceof File && file.size);
+  const uploadedCover = coverFile instanceof File && coverFile.size ? await uploadPropertyImages(saved.id, [coverFile]) : [];
+  if (uploadedCover[0]) { const { error: coverError } = await supabase.from('properties').update({ image_url: uploadedCover[0] }).eq('id', saved.id); if (coverError) { adminMessage = coverError.message; render(); return; } }
+  const uploaded = await uploadPropertyImages(saved.id, files);
+  if (uploaded.length) { await supabase.from('property_images').insert(uploaded.map((image, index) => ({ property_id: saved.id, image_url: image, sort_order: index }))); }
+  adminMessage = propertyId ? 'Propiedad actualizada.' : 'Propiedad creada.';
+  editingPropertyId = null;
+  await loadAdminProperties();
 }
 
 window.addEventListener('hashchange', render);
