@@ -107,7 +107,16 @@ async function uploadPropertyImages(propertyId, files) {
 }
 
 async function syncProperties() {
-  if (!hasSupabase) return;
+  if (!hasSupabase) {
+    try {
+      const response = await fetch('/content/properties.json', { cache: 'no-store' });
+      const catalog = await response.json();
+      const entries = Array.isArray(catalog) ? catalog : catalog.properties;
+      properties = Array.isArray(entries) ? entries.filter((property) => property.is_published !== false).map((property, index) => ({ id: property.id || property.code || index, ...property, image: property.image || property.image_url, gallery: property.gallery || [] })) : [];
+      render();
+    } catch { properties = []; render(); }
+    return;
+  }
   const { data, error } = await supabase.from('properties').select('*').eq('is_published', true).order('is_featured', { ascending: false }).order('created_at', { ascending: false });
   if (error) return;
   if (!data?.length) { properties = []; render(); return; }
@@ -117,7 +126,17 @@ async function syncProperties() {
 }
 
 async function syncSiteSettings() {
-  if (!supabase) return;
+  if (!supabase) {
+    try {
+      const response = await fetch('/content/site.json', { cache: 'no-store' });
+      const data = await response.json();
+      contentSettings = { ...contentSettings, ...data };
+      if (Array.isArray(data.hero_slides) && data.hero_slides.length) heroSlides.splice(0, heroSlides.length, ...data.hero_slides);
+      settingsLoaded = true;
+      render();
+    } catch { render(); }
+    return;
+  }
   const { data, error } = await supabase.from('site_settings').select('*').eq('id', 'main').maybeSingle();
   if (!error && data) {
     contentSettings = { ...contentSettings, ...data };
@@ -186,7 +205,8 @@ function render() {
   } else if (hash === '#all') {
     app.innerHTML = allPropertiesTemplate();
   } else if (hash === '#admin') {
-    app.innerHTML = adminPageTemplate();
+    window.location.href = '/admin/';
+    return;
   } else {
     app.innerHTML = homeTemplate();
   }
@@ -200,7 +220,7 @@ function render() {
 }
 
 function headerTemplate() {
-  return `<header class="site-header"><a class="brand" href="#"><img src="/Favicon%20o%20logo/Logo%20blanco.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="#admin">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
+  return `<header class="site-header"><a class="brand" href="#"><img src="/Favicon%20o%20logo/Logo%20blanco.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="/admin/">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
 }
 
 function footerTemplate() {

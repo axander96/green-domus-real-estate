@@ -1,0 +1,67 @@
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend: true
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+publish_mode: editorial_workflow
+
+collections:
+  - name: "site"
+    label: "Configuración General"
+    files:
+      - name: "settings"
+        label: "Contenido del sitio"
+        file: "public/content/site.json"
+        fields:
+          - label: "Portada"
+            name: "hero_slides"
+            widget: "list"
+            max: 3
+            fields:
+              - { label: "Etiqueta", name: "eyebrow", widget: "string" }
+              - { label: "Título", name: "title", widget: "string" }
+              - { label: "Texto", name: "copy", widget: "text" }
+              - { label: "Imagen", name: "image", widget: "image" }
+          - { label: "Etiqueta Nosotros", name: "about_eyebrow", widget: "string" }
+          - { label: "Título Nosotros", name: "about_title", widget: "string" }
+          - { label: "Texto Nosotros", name: "about_body", widget: "text" }
+          - { label: "Nombre del agente", name: "agent_name", widget: "string" }
+          - { label: "Cargo del agente", name: "agent_role", widget: "string" }
+          - { label: "Foto del agente", name: "agent_photo", widget: "image", required: false }
+          - { label: "Teléfono 1", name: "phone_one", widget: "string" }
+          - { label: "Teléfono 2", name: "phone_two", widget: "string" }
+          - { label: "WhatsApp", name: "whatsapp_number", widget: "string" }
+          - { label: "Correo", name: "contact_email", widget: "string" }
+
+  - name: "properties"
+    label: "Propiedades"
+    files:
+      - name: "catalog"
+        label: "Catálogo de propiedades"
+        file: "public/content/properties.json"
+        fields:
+          - label: "Propiedades"
+            name: "properties"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Código", name: "code", widget: "string" }
+              - { label: "Título", name: "title", widget: "string" }
+              - { label: "Tipo", name: "type", widget: "select", options: [Apartamento, Casa, Villa, Terreno, "Local comercial", Oficina, "Proyecto inmobiliario"] }
+              - { label: "Operación", name: "operation", widget: "select", options: [Venta, Alquiler] }
+              - { label: "Precio", name: "price", widget: "number", value_type: "float" }
+              - { label: "Ubicación", name: "location", widget: "string" }
+              - { label: "Área", name: "area", widget: "number", value_type: "float" }
+              - { label: "Habitaciones", name: "beds", widget: "number", value_type: "int" }
+              - { label: "Baños", name: "baths", widget: "number", value_type: "int" }
+              - { label: "Etiqueta", name: "tag", widget: "string", default: "Nueva" }
+              - { label: "Publicada", name: "is_published", widget: "boolean", default: true }
+              - { label: "Destacada", name: "is_featured", widget: "boolean", default: false }
+              - { label: "Imagen principal", name: "image", widget: "image" }
+              - { label: "Galería", name: "gallery", widget: "list", field: { label: "Imagen", name: "image", widget: "image" }, required: false }
+              - { label: "Descripción", name: "description", widget: "text" }
+              - { label: "Amenidades", name: "amenities", widget: "list", field: { label: "Amenidad", name: "amenity", widget: "string" }, required: false }
