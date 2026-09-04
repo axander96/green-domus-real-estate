@@ -39,6 +39,10 @@ alter table public.profiles enable row level security;
 alter table public.properties enable row level security;
 alter table public.property_images enable row level security;
 
+drop policy if exists "Users can read own profile" on public.profiles;
+create policy "Users can read own profile" on public.profiles
+  for select to authenticated using (id = auth.uid());
+
 drop policy if exists "Published properties are public" on public.properties;
 create policy "Published properties are public" on public.properties
   for select using (is_published = true);
