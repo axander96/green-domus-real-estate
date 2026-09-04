@@ -4,6 +4,7 @@ import './detail-overrides.css';
 import './admin-overrides.css';
 import './description-overrides.css';
 import './rounded-panels.css';
+import './typography-overrides.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
