@@ -35,13 +35,39 @@ create table if not exists public.property_images (
   sort_order integer not null default 0
 );
 
+create table if not exists public.site_settings (
+  id text primary key default 'main',
+  hero_slides jsonb not null default '[]'::jsonb,
+  about_eyebrow text not null default 'CONOCE GREEN DOMUS',
+  about_title text not null default 'Encontrar una propiedad debería sentirse así.',
+  about_body text not null default '',
+  categories jsonb not null default '[]'::jsonb,
+  agent_name text not null default 'Asdrúbal Salas',
+  agent_role text not null default 'Agente de bienes raíces',
+  agent_photo text not null default '',
+  phone_one text not null default '(809) 671-1120',
+  phone_two text not null default '(829) 684-7760',
+  whatsapp_number text not null default '18096711120',
+  contact_email text not null default 'greendomusrealestate@gmail.com',
+  updated_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.properties enable row level security;
 alter table public.property_images enable row level security;
+alter table public.site_settings enable row level security;
 
 drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile" on public.profiles
   for select to authenticated using (id = auth.uid());
+
+drop policy if exists "Site settings are public" on public.site_settings;
+create policy "Site settings are public" on public.site_settings for select using (true);
+
+drop policy if exists "Admins manage site settings" on public.site_settings;
+create policy "Admins manage site settings" on public.site_settings for all to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator')))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role in ('owner', 'creator')));
 
 drop policy if exists "Published properties are public" on public.properties;
 create policy "Published properties are public" on public.properties
@@ -70,6 +96,10 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute procedure public.handle_new_user();
 
 insert into storage.buckets (id, name, public) values ('property-images', 'property-images', true) on conflict (id) do nothing;
+
+insert into public.site_settings (id, hero_slides, categories, about_body)
+values ('main', '[{"eyebrow":"Una nueva forma de encontrar hogar","title":"Espacios que hacen crecer tu historia.","copy":"Propiedades seleccionadas con criterio, visión y un acompañamiento verdaderamente humano.","image":"https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=2200&q=88"},{"eyebrow":"Vive donde todo sucede","title":"Tu próxima dirección empieza aquí.","copy":"Descubre apartamentos, villas y oportunidades de inversión en los lugares que importan.","image":"https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=2200&q=88"},{"eyebrow":"Invierte con perspectiva","title":"Patrimonio con una mirada más verde.","copy":"Te conectamos con propiedades que tienen valor hoy y posibilidades para mañana.","image":"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=88"}]'::jsonb, '[]'::jsonb, 'Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.')
+on conflict (id) do nothing;
 
 drop policy if exists "Public property images" on storage.objects;
 create policy "Public property images" on storage.objects for select using (bucket_id = 'property-images');

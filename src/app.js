@@ -7,6 +7,7 @@ import './rounded-panels.css';
 import './typography-overrides.css';
 import './admin-crud.css';
 import './admin-access.css';
+import './agent-photo.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -52,7 +53,8 @@ const categories = [
   ['Terreno', '04', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80']
 ];
 
-let properties = JSON.parse(localStorage.getItem('green-domus-properties') || 'null') || seedProperties;
+let properties = [];
+let contentSettings = { hero_slides: heroSlides, categories: [], about_eyebrow: 'CONOCE GREEN DOMUS', about_title: 'Encontrar una propiedad debería sentirse así.', about_body: 'Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.', agent_name: 'Asdrúbal Salas', agent_role: 'Agente de bienes raíces', agent_photo: '', phone_one: '(809) 671-1120', phone_two: '(829) 684-7760', whatsapp_number: '18096711120', contact_email: 'greendomusrealestate@gmail.com' };
 let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
@@ -62,6 +64,7 @@ let editingPropertyId = null;
 let adminLoading = false;
 let adminLoaded = false;
 let adminAuthenticated = false;
+let settingsLoaded = false;
 
 function mapRemoteProperty(property, images = []) {
   const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
@@ -106,10 +109,48 @@ async function uploadPropertyImages(propertyId, files) {
 async function syncProperties() {
   if (!hasSupabase) return;
   const { data, error } = await supabase.from('properties').select('*').eq('is_published', true).order('is_featured', { ascending: false }).order('created_at', { ascending: false });
-  if (error || !data?.length) return;
+  if (error) return;
+  if (!data?.length) { properties = []; render(); return; }
   const { data: images } = await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id));
   properties = data.map((property) => mapRemoteProperty(property, images || []));
   render();
+}
+
+async function syncSiteSettings() {
+  if (!supabase) return;
+  const { data, error } = await supabase.from('site_settings').select('*').eq('id', 'main').maybeSingle();
+  if (!error && data) {
+    contentSettings = { ...contentSettings, ...data };
+    if (Array.isArray(data.hero_slides) && data.hero_slides.length) heroSlides.splice(0, heroSlides.length, ...data.hero_slides);
+    if (Array.isArray(data.categories) && data.categories.length) categories.splice(0, categories.length, ...data.categories);
+    settingsLoaded = true;
+    render();
+  }
+}
+
+function applyEditableCopy() {
+  const about = document.querySelector('.intro-band');
+  if (!about) return;
+  const eyebrow = about.querySelector('.eyebrow');
+  const title = about.querySelector('h2');
+  const body = about.querySelector(':scope > p');
+  if (eyebrow) eyebrow.textContent = contentSettings.about_eyebrow;
+  if (title) title.textContent = contentSettings.about_title;
+  if (body) body.textContent = contentSettings.about_body;
+}
+
+function applyEditableAgent() {
+  const heading = document.querySelector('.agent-heading');
+  const contact = document.querySelector('.agent-contact');
+  const message = document.querySelector('.agent-card textarea');
+  if (!heading || !contact) return;
+  const identity = heading.querySelector('div:last-child');
+  if (identity) identity.innerHTML = `<h3>${contentSettings.agent_name}</h3><p>${contentSettings.agent_role}</p>`;
+  const photo = contentSettings.agent_photo;
+  const avatar = heading.querySelector('.agent-avatar, .agent-photo');
+  if (photo && avatar) { const image = document.createElement('img'); image.className = 'agent-photo'; image.src = photo; image.alt = contentSettings.agent_name; avatar.replaceWith(image); }
+  contact.innerHTML = `<a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one}</a><a href="tel:${contentSettings.phone_two.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a>`;
+  if (message) message.value = `Hola ${contentSettings.agent_name}, tengo un cliente interesado en esta propiedad. ¿Sigue disponible?`;
 }
 
 const formatPrice = (value, operation) => {
@@ -153,11 +194,13 @@ function render() {
   if (footer) footer.outerHTML = footerTemplate();
   document.querySelector('.site-header')?.classList.toggle('is-floating', window.scrollY > 40);
   bindEvents();
+  applyEditableCopy();
+  applyEditableAgent();
   if (hash === '#admin' && hasSupabase && !adminLoaded && !adminLoading) loadAdminProperties();
 }
 
 function headerTemplate() {
-  return `<header class="site-header"><a class="brand" href="#"><img src="/Favicon%20o%20logo/Dise%C3%B1o%20sin%20t%C3%ADtulo.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="#admin">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
+  return `<header class="site-header"><a class="brand" href="#"><img src="/Favicon%20o%20logo/Logo%20blanco.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="#admin">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
 }
 
 function footerTemplate() {
@@ -177,12 +220,13 @@ function propertyGallery(property) {
 }
 
 function whatsappUrl(property) {
-  const message = `Hola Asdrúbal, tengo un cliente interesado en la propiedad ${property.title} (código ${propertyCode(property)}). ¿Sigue disponible?`;
-  return `https://wa.me/18096711120?text=${encodeURIComponent(message)}`;
+  const message = `Hola ${contentSettings.agent_name}, tengo un cliente interesado en la propiedad ${property.title} (código ${propertyCode(property)}). ¿Sigue disponible?`;
+  return `https://wa.me/${contentSettings.whatsapp_number.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
 }
 
 function homeTemplate() {
-  const slide = heroSlides[activeSlide];
+  const slides = contentSettings.hero_slides?.length ? contentSettings.hero_slides : heroSlides;
+  const slide = slides[activeSlide % slides.length];
   const featured = properties.filter((item) => item.tag === 'Destacada' || item.tag === 'Exclusiva').slice(0, 6);
   return `<div class="page-shell">${headerTemplate()}<main><section class="hero" style="--hero-image: url('${slide.image}')"><div class="hero-overlay"></div><div class="hero-content"><p class="eyebrow">${slide.eyebrow}</p><h1>${slide.title}</h1><p class="hero-copy">${slide.copy}</p></div><div class="hero-control"><span>0${activeSlide + 1}</span><div class="hero-line"><i style="width:${((activeSlide + 1) / heroSlides.length) * 100}%"></i></div><span>0${heroSlides.length}</span><button class="hero-next" data-action="next-slide" aria-label="Siguiente">${icon('arrow')}</button></div><div class="hero-dots">${heroSlides.map((_, index) => `<button class="${index === activeSlide ? 'active' : ''}" data-slide="${index}" aria-label="Slide ${index + 1}"></button>`).join('')}</div>${searchTemplate()}</section><section class="intro-band" id="about"><div><p class="eyebrow dark">CONOCE GREEN DOMUS</p><h2>Encontrar una propiedad<br/><em>debería sentirse así.</em></h2></div><p>Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.</p><a href="#contact" class="text-link">Conócenos ${icon('arrow')}</a></section><section class="section" id="properties"><div class="section-heading"><div><p class="eyebrow dark">SELECCIÓN GREEN DOMUS</p><h2>Propiedades con<br/><em>algo especial.</em></h2></div><a href="#all" class="outline-button">Ver todas ${icon('arrow')}</a></div><div class="property-grid">${featured.map(propertyCard).join('')}</div></section><section class="category-section"><div class="section-heading"><div><p class="eyebrow dark">EXPLORA POR TIPO</p><h2>Tu próximo espacio,<br/><em>a tu manera.</em></h2></div><p class="heading-note">Desde el primer apartamento hasta una inversión que mira al futuro.</p></div><div class="category-grid">${categories.map(([name, number, image]) => `<a href="#all?type=${encodeURIComponent(name)}" class="category-card"><img src="${image}" alt="${name}"/><span>${number}</span><strong>${name}</strong>${icon('arrow')}</a>`).join('')}</div></section><section class="contact-band" id="contact"><div><p class="eyebrow">HABLEMOS DE TU PRÓXIMO PASO</p><h2>Hay una puerta<br/>esperando por ti.</h2></div><a href="mailto:hola@greendomus.com" class="light-button">Escríbenos ${icon('arrow')}</a></section></main><footer><div class="brand footer-brand"><img src="/Favicon%20o%20logo/Dise%C3%B1o%20sin%20t%C3%ADtulo.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p>© 2026 Green Domus Real Estate</p><p>Santo Domingo · República Dominicana</p></footer>${adminModal()}</div>`;
 }
@@ -209,8 +253,13 @@ function adminModal() {
 function adminPageTemplate() {
   const rows = adminProperties.map((property) => `<article class="admin-property-row"><img src="${property.image}" alt=""/><div class="admin-property-info"><div><span class="admin-status ${property.is_published ? 'published' : ''}">${property.is_published ? 'Publicada' : 'Borrador'}</span>${property.is_featured ? '<span class="admin-featured">Destacada</span>' : ''}</div><h3>${property.title}</h3><p>${propertyCode(property)} · ${property.location}</p><strong>${formatPrice(property.price, property.operation)}</strong></div><div class="admin-property-actions"><button type="button" data-admin-action="edit" data-property-id="${property.id}">Editar</button><button type="button" data-admin-action="toggle" data-property-id="${property.id}">${property.is_published ? 'Despublicar' : 'Publicar'}</button><button type="button" data-admin-action="feature" data-property-id="${property.id}">${property.is_featured ? 'Quitar destacada' : 'Destacar'}</button><button type="button" class="danger" data-admin-action="delete" data-property-id="${property.id}">Eliminar</button></div></article>`).join('');
   const editing = adminProperties.find((property) => property.id === editingPropertyId);
-  const adminContent = adminAuthenticated ? `<div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Todavía no hay propiedades en Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}` : '<div class="admin-locked">Después de iniciar sesión y validar los permisos aparecerá aquí el catálogo.</div>';
+  const adminContent = adminAuthenticated ? `<div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Todavía no hay propiedades en Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}${adminSettingsForm()}` : '<div class="admin-locked">Después de iniciar sesión y validar los permisos aparecerá aquí el catálogo.</div>';
   return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Publica, edita y organiza tus propiedades desde un solo lugar.</p></div><section class="admin-console"><div class="admin-auth-bar"><div><strong>Acceso administrador</strong><span id="admin-session-label">${adminMessage || 'Inicia sesión para gestionar el catálogo.'}</span></div><form id="admin-auth-form"><input name="email" type="email" required placeholder="Correo"/><input name="password" type="password" required placeholder="Contraseña"/><button class="primary-button" type="submit">Iniciar sesión</button></form></div><p class="auth-status" id="admin-status">${adminMessage}</p>${adminContent}</section></main></div>`;
+}
+
+function adminSettingsForm() {
+  const slides = contentSettings.hero_slides?.length ? contentSettings.hero_slides : heroSlides;
+  return `<section class="admin-settings"><div class="admin-editor-heading"><div><p class="eyebrow dark">CONTENIDO DEL SITIO</p><h2>Portada, textos y agente</h2></div></div><form id="site-settings-form"><label>Título de la sección Nosotros<input name="about_title" value="${contentSettings.about_title || ''}" required /></label><label>Texto de la sección Nosotros<textarea name="about_body" rows="4">${contentSettings.about_body || ''}</textarea></label><div class="admin-slide-grid">${slides.slice(0, 3).map((slide, index) => `<fieldset><legend>Portada ${index + 1}</legend><label>Etiqueta<input name="slide_${index}_eyebrow" value="${slide.eyebrow || ''}" /></label><label>Título<input name="slide_${index}_title" value="${slide.title || ''}" /></label><label>Texto<textarea name="slide_${index}_copy" rows="2">${slide.copy || ''}</textarea></label><label>Imagen URL<input name="slide_${index}_image" value="${slide.image || ''}" /></label></fieldset>`).join('')}</div><div class="form-columns"><label>Nombre del agente<input name="agent_name" value="${contentSettings.agent_name || ''}" /></label><label>Rol<input name="agent_role" value="${contentSettings.agent_role || ''}" /></label></div><div class="form-columns"><label>Teléfono 1<input name="phone_one" value="${contentSettings.phone_one || ''}" /></label><label>Teléfono 2<input name="phone_two" value="${contentSettings.phone_two || ''}" /></label></div><div class="form-columns"><label>WhatsApp (solo números)<input name="whatsapp_number" value="${contentSettings.whatsapp_number || ''}" /></label><label>Correo<input name="contact_email" type="email" value="${contentSettings.contact_email || ''}" /></label></div><label>Foto del agente (URL)<input name="agent_photo" value="${contentSettings.agent_photo || ''}" /></label><button class="primary-button" type="submit">Guardar contenido ${icon('arrow')}</button></form></section>`;
 }
 
 function adminEditForm(property = {}) {
@@ -238,10 +287,23 @@ function bindEvents() {
   document.querySelector('#admin-auth-form')?.addEventListener('submit', async (event) => { event.preventDefault(); if (!supabase) { adminMessage = 'Supabase no está configurado.'; render(); return; } const data = new FormData(event.target); const { error } = await supabase.auth.signInWithPassword({ email: data.get('email'), password: data.get('password') }); adminMessage = error ? error.message : 'Sesión iniciada correctamente.'; if (!error) await loadAdminProperties(); else render(); });
   document.querySelectorAll('[data-admin-action]').forEach((button) => button.addEventListener('click', () => handleAdminAction(button.dataset.adminAction, Number(button.dataset.propertyId))));
   document.querySelector('#admin-property-form')?.addEventListener('submit', saveAdminProperty);
+  document.querySelector('#site-settings-form')?.addEventListener('submit', saveSiteSettings);
   document.querySelector('#search-form')?.addEventListener('submit', (event) => { event.preventDefault(); if (window.location.hash !== '#all') window.location.hash = 'all'; else render(); });
   document.querySelector('#admin-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const data = new FormData(event.target); const gallery = String(data.get('gallery') || '').split(',').map((image) => image.trim()).filter(Boolean); const property = { id: Date.now(), code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: 0, baths: 0, tag: 'Nueva', image: data.get('image'), gallery, description: 'Una nueva propiedad de Green Domus, lista para descubrir.' };
     if (hasSupabase) { const { data: session } = await supabase.auth.getSession(); if (session.session) { const { data: created, error } = await supabase.from('properties').insert({ code: property.code, title: property.title, type: property.type, operation: property.operation, price: property.price, location: property.location, area: property.area, image_url: property.image, description: property.description, created_by: session.session.user.id }).select().single(); if (!error && created) { if (gallery.length) await supabase.from('property_images').insert(gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))); properties = [mapRemoteProperty(created, gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))), ...properties]; document.querySelector('#admin-modal').classList.remove('open'); render(); return; } } }
     properties = [property, ...properties]; localStorage.setItem('green-domus-properties', JSON.stringify(properties)); document.querySelector('#admin-modal').classList.remove('open'); render(); });
+}
+
+async function saveSiteSettings(event) {
+  event.preventDefault();
+  if (!supabase || !adminAuthenticated) return;
+  const data = new FormData(event.target);
+  const hero = (contentSettings.hero_slides || heroSlides).slice(0, 3).map((slide, index) => ({ eyebrow: data.get(`slide_${index}_eyebrow`), title: data.get(`slide_${index}_title`), copy: data.get(`slide_${index}_copy`), image: data.get(`slide_${index}_image`) }));
+  const payload = { id: 'main', hero_slides: hero, categories, about_title: data.get('about_title'), about_body: data.get('about_body'), agent_name: data.get('agent_name'), agent_role: data.get('agent_role'), agent_photo: data.get('agent_photo'), phone_one: data.get('phone_one'), phone_two: data.get('phone_two'), whatsapp_number: String(data.get('whatsapp_number')).replace(/\D/g, ''), contact_email: data.get('contact_email'), updated_at: new Date().toISOString() };
+  const { error } = await supabase.from('site_settings').upsert(payload);
+  adminMessage = error ? error.message : 'Contenido actualizado.';
+  if (!error) { contentSettings = { ...contentSettings, ...payload }; heroSlides.splice(0, heroSlides.length, ...hero); }
+  render();
 }
 
 async function handleAdminAction(action, propertyId) {
@@ -287,4 +349,5 @@ window.addEventListener('hashchange', render);
 window.addEventListener('scroll', () => document.querySelector('.site-header')?.classList.toggle('is-floating', window.scrollY > 40), { passive: true });
 render();
 syncProperties();
+syncSiteSettings();
 setInterval(() => { if (!window.location.hash || window.location.hash === '#') { activeSlide = (activeSlide + 1) % heroSlides.length; render(); } }, 7000);
