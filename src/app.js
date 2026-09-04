@@ -6,6 +6,7 @@ import './description-overrides.css';
 import './rounded-panels.css';
 import './typography-overrides.css';
 import './admin-crud.css';
+import './admin-access.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -60,6 +61,7 @@ let adminMessage = '';
 let editingPropertyId = null;
 let adminLoading = false;
 let adminLoaded = false;
+let adminAuthenticated = false;
 
 function mapRemoteProperty(property, images = []) {
   const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
@@ -71,10 +73,20 @@ async function loadAdminProperties() {
   adminLoading = true;
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) { adminLoading = false; return; }
+  const { data: profile, error: profileError } = await supabase.from('profiles').select('role, full_name').eq('id', sessionData.session.user.id).maybeSingle();
+  if (profileError || !profile || !['owner', 'creator'].includes(profile.role)) {
+    adminMessage = profileError ? profileError.message : 'Tu cuenta inició sesión, pero todavía no tiene permisos de administrador.';
+    adminAuthenticated = false;
+    adminLoading = false;
+    adminLoaded = true;
+    render();
+    return;
+  }
   const { data, error } = await supabase.from('properties').select('*').order('created_at', { ascending: false });
-  if (error) { adminMessage = error.message; adminLoading = false; adminLoaded = true; return; }
+  if (error) { adminMessage = error.message; adminAuthenticated = false; adminLoading = false; adminLoaded = true; render(); return; }
   const { data: images } = data?.length ? await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id)) : { data: [] };
   adminProperties = (data || []).map((property) => mapRemoteProperty(property, images || []));
+  adminAuthenticated = true;
   adminLoading = false;
   adminLoaded = true;
   render();
@@ -197,7 +209,8 @@ function adminModal() {
 function adminPageTemplate() {
   const rows = adminProperties.map((property) => `<article class="admin-property-row"><img src="${property.image}" alt=""/><div class="admin-property-info"><div><span class="admin-status ${property.is_published ? 'published' : ''}">${property.is_published ? 'Publicada' : 'Borrador'}</span>${property.is_featured ? '<span class="admin-featured">Destacada</span>' : ''}</div><h3>${property.title}</h3><p>${propertyCode(property)} · ${property.location}</p><strong>${formatPrice(property.price, property.operation)}</strong></div><div class="admin-property-actions"><button type="button" data-admin-action="edit" data-property-id="${property.id}">Editar</button><button type="button" data-admin-action="toggle" data-property-id="${property.id}">${property.is_published ? 'Despublicar' : 'Publicar'}</button><button type="button" data-admin-action="feature" data-property-id="${property.id}">${property.is_featured ? 'Quitar destacada' : 'Destacar'}</button><button type="button" class="danger" data-admin-action="delete" data-property-id="${property.id}">Eliminar</button></div></article>`).join('');
   const editing = adminProperties.find((property) => property.id === editingPropertyId);
-  return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Publica, edita y organiza tus propiedades desde un solo lugar.</p></div><section class="admin-console"><div class="admin-auth-bar"><div><strong>Acceso administrador</strong><span id="admin-session-label">${adminMessage || 'Inicia sesión para gestionar el catálogo.'}</span></div><form id="admin-auth-form"><input name="email" type="email" required placeholder="Correo"/><input name="password" type="password" required placeholder="Contraseña"/><button class="primary-button" type="submit">Iniciar sesión</button></form></div><p class="auth-status" id="admin-status">${adminMessage}</p><div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Inicia sesión para ver las propiedades de Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}</section></main></div>`;
+  const adminContent = adminAuthenticated ? `<div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Todavía no hay propiedades en Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}` : '<div class="admin-locked">Después de iniciar sesión y validar los permisos aparecerá aquí el catálogo.</div>';
+  return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Publica, edita y organiza tus propiedades desde un solo lugar.</p></div><section class="admin-console"><div class="admin-auth-bar"><div><strong>Acceso administrador</strong><span id="admin-session-label">${adminMessage || 'Inicia sesión para gestionar el catálogo.'}</span></div><form id="admin-auth-form"><input name="email" type="email" required placeholder="Correo"/><input name="password" type="password" required placeholder="Contraseña"/><button class="primary-button" type="submit">Iniciar sesión</button></form></div><p class="auth-status" id="admin-status">${adminMessage}</p>${adminContent}</section></main></div>`;
 }
 
 function adminEditForm(property = {}) {
