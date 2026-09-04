@@ -1,6 +1,7 @@
 import './styles.css';
 import './overrides.css';
 import './detail-overrides.css';
+import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
   {
@@ -49,6 +50,19 @@ let properties = JSON.parse(localStorage.getItem('green-domus-properties') || 'n
 let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
+
+function mapRemoteProperty(property, images = []) {
+  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order).map((image) => image.image_url), description: property.description };
+}
+
+async function syncProperties() {
+  if (!hasSupabase) return;
+  const { data, error } = await supabase.from('properties').select('*').eq('is_published', true).order('is_featured', { ascending: false }).order('created_at', { ascending: false });
+  if (error || !data?.length) return;
+  const { data: images } = await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id));
+  properties = data.map((property) => mapRemoteProperty(property, images || []));
+  render();
+}
 
 const formatPrice = (value, operation) => {
   const price = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
@@ -136,7 +150,7 @@ function detailTemplate(property) {
 }
 
 function adminModal() {
-  return `<div class="modal-backdrop" id="admin-modal"><div class="admin-modal"><button class="modal-close" data-close>${icon('close')}</button><p class="eyebrow dark">GREEN DOMUS · ADMIN</p><h2>Gestiona tu catálogo.</h2><p class="modal-copy">Agrega una propiedad y quedará visible en este navegador. El código se usará automáticamente en el mensaje de WhatsApp.</p><form id="admin-form"><label>Título<input name="title" required placeholder="Ej. Apartamento Vista Norte" /></label><div class="form-columns"><label>Código de propiedad<input name="code" required placeholder="GD-1026" /></label><label>Tipo<select name="type"><option>Apartamento</option><option>Casa</option><option>Villa</option><option>Terreno</option><option>Local comercial</option><option>Oficina</option><option>Proyecto inmobiliario</option></select></label></div><div class="form-columns"><label>Operación<select name="operation"><option>Venta</option><option>Alquiler</option></select></label><label>Precio (USD)<input name="price" type="number" required placeholder="250000" /></label></div><div class="form-columns"><label>Área (m²)<input name="area" type="number" required placeholder="120" /></label><label>Galería URLs<input name="gallery" placeholder="https://imagen-2.jpg, https://imagen-3.jpg" /></label></div><label>Ubicación<input name="location" required placeholder="Santo Domingo, República Dominicana" /></label><label>Imagen principal URL<input name="image" required placeholder="https://..." /></label><button class="primary-button" type="submit">Agregar propiedad ${icon('plus')}</button></form></div></div>`;
+  return `<div class="modal-backdrop" id="admin-modal"><div class="admin-modal"><button class="modal-close" data-close>${icon('close')}</button><p class="eyebrow dark">GREEN DOMUS · ADMIN</p><h2>Gestiona tu catálogo.</h2><p class="modal-copy">Inicia sesión con una cuenta autorizada para publicar propiedades en Supabase.</p><form id="auth-form"><div class="form-columns"><label>Correo<input name="email" type="email" required placeholder="admin@greendomus.com" /></label><label>Contraseña<input name="password" type="password" required placeholder="••••••••" /></label></div><button class="outline-button" type="submit">Iniciar sesión</button><p class="auth-status" id="auth-status"></p></form><form id="admin-form"><label>Título<input name="title" required placeholder="Ej. Apartamento Vista Norte" /></label><div class="form-columns"><label>Código de propiedad<input name="code" required placeholder="GD-1026" /></label><label>Tipo<select name="type"><option>Apartamento</option><option>Casa</option><option>Villa</option><option>Terreno</option><option>Local comercial</option><option>Oficina</option><option>Proyecto inmobiliario</option></select></label></div><div class="form-columns"><label>Operación<select name="operation"><option>Venta</option><option>Alquiler</option></select></label><label>Precio (USD)<input name="price" type="number" required placeholder="250000" /></label></div><div class="form-columns"><label>Área (m²)<input name="area" type="number" required placeholder="120" /></label><label>Galería URLs<input name="gallery" placeholder="https://imagen-2.jpg, https://imagen-3.jpg" /></label></div><label>Ubicación<input name="location" required placeholder="Santo Domingo, República Dominicana" /></label><label>Imagen principal URL<input name="image" required placeholder="https://..." /></label><button class="primary-button" type="submit">Agregar propiedad ${icon('plus')}</button></form></div></div>`;
 }
 
 function filteredProperties() {
@@ -155,11 +169,15 @@ function bindEvents() {
   document.querySelectorAll('.admin-trigger').forEach((button) => button.addEventListener('click', () => document.querySelector('#admin-modal').classList.add('open')));
   document.querySelector('[data-close]')?.addEventListener('click', () => document.querySelector('#admin-modal').classList.remove('open'));
   document.querySelector('#admin-modal')?.addEventListener('click', (event) => { if (event.target.id === 'admin-modal') event.currentTarget.classList.remove('open'); });
+  document.querySelector('#auth-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const status = document.querySelector('#auth-status'); if (!supabase) { status.textContent = 'Configura Supabase para iniciar sesión.'; return; } const data = new FormData(event.target); const { error } = await supabase.auth.signInWithPassword({ email: data.get('email'), password: data.get('password') }); status.textContent = error ? error.message : 'Sesión iniciada. Ya puedes publicar propiedades.'; if (!error) await syncProperties(); });
   document.querySelector('#search-form')?.addEventListener('submit', (event) => { event.preventDefault(); if (window.location.hash !== '#all') window.location.hash = 'all'; else render(); });
-  document.querySelector('#admin-form')?.addEventListener('submit', (event) => { event.preventDefault(); const data = new FormData(event.target); properties = [{ id: Date.now(), code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: 0, baths: 0, tag: 'Nueva', image: data.get('image'), gallery: String(data.get('gallery') || '').split(',').map((image) => image.trim()).filter(Boolean), description: 'Una nueva propiedad de Green Domus, lista para descubrir.' }, ...properties]; localStorage.setItem('green-domus-properties', JSON.stringify(properties)); document.querySelector('#admin-modal').classList.remove('open'); render(); });
+  document.querySelector('#admin-form')?.addEventListener('submit', async (event) => { event.preventDefault(); const data = new FormData(event.target); const gallery = String(data.get('gallery') || '').split(',').map((image) => image.trim()).filter(Boolean); const property = { id: Date.now(), code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: 0, baths: 0, tag: 'Nueva', image: data.get('image'), gallery, description: 'Una nueva propiedad de Green Domus, lista para descubrir.' };
+    if (hasSupabase) { const { data: session } = await supabase.auth.getSession(); if (session.session) { const { data: created, error } = await supabase.from('properties').insert({ code: property.code, title: property.title, type: property.type, operation: property.operation, price: property.price, location: property.location, area: property.area, image_url: property.image, description: property.description, created_by: session.session.user.id }).select().single(); if (!error && created) { if (gallery.length) await supabase.from('property_images').insert(gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))); properties = [mapRemoteProperty(created, gallery.map((image, index) => ({ property_id: created.id, image_url: image, sort_order: index }))), ...properties]; document.querySelector('#admin-modal').classList.remove('open'); render(); return; } } }
+    properties = [property, ...properties]; localStorage.setItem('green-domus-properties', JSON.stringify(properties)); document.querySelector('#admin-modal').classList.remove('open'); render(); });
 }
 
 window.addEventListener('hashchange', render);
 window.addEventListener('scroll', () => document.querySelector('.site-header')?.classList.toggle('is-floating', window.scrollY > 40), { passive: true });
 render();
+syncProperties();
 setInterval(() => { if (!window.location.hash || window.location.hash === '#') { activeSlide = (activeSlide + 1) % heroSlides.length; render(); } }, 7000);
