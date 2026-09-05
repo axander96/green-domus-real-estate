@@ -9,6 +9,7 @@ import './admin-crud.css';
 import './admin-access.css';
 import './agent-photo.css';
 import './presentation-cleanup.css';
+import './brand-footer-mobile.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
