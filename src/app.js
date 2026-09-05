@@ -11,6 +11,7 @@ import './agent-photo.css';
 import './presentation-cleanup.css';
 import './brand-footer-mobile.css';
 import './mobile-layout-fixes.css';
+import './responsive-type-search.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
