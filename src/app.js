@@ -13,6 +13,7 @@ import './brand-footer-mobile.css';
 import './mobile-layout-fixes.css';
 import './responsive-type-search.css';
 import './contact-mobile.css';
+import './home-section-order.css';
 import './agent-after-amenities.css';
 import { supabase, hasSupabase } from './supabase';
 
