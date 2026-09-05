@@ -19,7 +19,6 @@ import './property-detail-icons.css';
 import './final-polish-seo.css';
 import './detail-order-polish.css';
 import './final-visual-rules.css';
-import './search-engine-links.css';
 import './rounded-final.css';
 import { supabase, hasSupabase } from './supabase';
 
@@ -178,15 +177,6 @@ function applyEditableCopy() {
   if (categoriesTitle && contentSettings.categories_title) categoriesTitle.textContent = contentSettings.categories_title;
 }
 
-function applySearchEngineLinks() {
-  const categories = document.querySelector('.category-section');
-  if (!categories || document.querySelector('.search-engine-links')) return;
-  const links = document.createElement('nav');
-  links.className = 'search-engine-links';
-  links.setAttribute('aria-label', 'Enlaces de propiedades');
-  links.innerHTML = '<a href="#all?operation=Venta">Propiedades en venta</a><a href="#all?operation=Alquiler">Propiedades en alquiler</a>';
-  categories.insertAdjacentElement('afterend', links);
-}
 
 function applyEditableAgent() {
   const heading = document.querySelector('.agent-heading');
@@ -272,7 +262,6 @@ function render() {
   document.querySelector('.site-header')?.classList.toggle('is-floating', window.scrollY > 40);
   bindEvents();
   applyEditableCopy();
-  applySearchEngineLinks();
   applyEditableAgent();
   applyPropertyDetails();
   if (hash === '#admin' && hasSupabase && !adminLoaded && !adminLoading) loadAdminProperties();
@@ -309,7 +298,6 @@ function homeTemplate() {
   const slides = contentSettings.hero_slides?.length ? contentSettings.hero_slides : heroSlides;
   const slide = slides[activeSlide % slides.length];
   const featured = properties.filter((item) => item.is_featured === true || item.tag === 'Destacada' || item.tag === 'Exclusiva').slice(0, 6);
-  const searchLinks = `<nav class="search-engine-links" aria-label="Enlaces de propiedades"><a href="#all?operation=Venta">Propiedades en venta</a><a href="#all?operation=Alquiler">Propiedades en alquiler</a></nav>`;
   return `<div class="page-shell">${headerTemplate()}<main><section class="hero" style="--hero-image: url('${slide.image}')"><div class="hero-overlay"></div><div class="hero-content"><p class="eyebrow">${slide.eyebrow}</p><h1>${slide.title}</h1><p class="hero-copy">${slide.copy}</p></div><div class="hero-control"><span>0${activeSlide + 1}</span><div class="hero-line"><i style="width:${((activeSlide + 1) / heroSlides.length) * 100}%"></i></div><span>0${heroSlides.length}</span><button class="hero-next" data-action="next-slide" aria-label="Siguiente">${icon('arrow')}</button></div><div class="hero-dots">${heroSlides.map((_, index) => `<button class="${index === activeSlide ? 'active' : ''}" data-slide="${index}" aria-label="Slide ${index + 1}"></button>`).join('')}</div>${searchTemplate()}</section><section class="intro-band" id="about"><div><p class="eyebrow dark">CONOCE GREEN DOMUS</p><h2>Encontrar una propiedad<br/><em>debería sentirse así.</em></h2></div><p>Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.</p><a href="#contact" class="text-link">Conócenos ${icon('arrow')}</a></section><section class="section" id="properties"><div class="section-heading"><div><p class="eyebrow dark">SELECCIÓN GREEN DOMUS</p><h2>Propiedades con<br/><em>algo especial.</em></h2></div><a href="#all" class="outline-button">Ver todas ${icon('arrow')}</a></div><div class="property-grid">${featured.map(propertyCard).join('')}</div></section><section class="category-section"><div class="section-heading"><div><p class="eyebrow dark">EXPLORA POR TIPO</p><h2>Tu próximo espacio,<br/><em>a tu manera.</em></h2></div><p class="heading-note">Desde el primer apartamento hasta una inversión que mira al futuro.</p></div><div class="category-grid">${categories.map(([name, number, image]) => `<a href="#all?type=${encodeURIComponent(name)}" class="category-card"><img src="${image}" alt="${name}"/><span>${number}</span><strong>${name}</strong>${icon('arrow')}</a>`).join('')}</div></section><section class="contact-band" id="contact"><div><p class="eyebrow">HABLEMOS DE TU PRÓXIMO PASO</p><h2>Hay una puerta<br/>esperando por ti.</h2></div><a href="mailto:hola@greendomus.com" class="light-button">Escríbenos ${icon('arrow')}</a></section></main><footer><div class="brand footer-brand"><img src="/Favicon%20o%20logo/Dise%C3%B1o%20sin%20t%C3%ADtulo.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p>© 2026 Green Domus Real Estate</p><p>Santo Domingo · República Dominicana</p></footer>${adminModal()}</div>`;
 }
 
