@@ -206,7 +206,8 @@ function render() {
   const app = document.querySelector('#app');
   const hash = window.location.hash;
   if (hash.startsWith('#property-')) {
-    const property = properties.find((item) => item.id === Number(hash.replace('#property-', '')));
+    const propertyKey = decodeURIComponent(hash.replace('#property-', ''));
+    const property = properties.find((item) => String(item.id) === propertyKey || String(item.code) === propertyKey);
     app.innerHTML = property ? detailTemplate(property) : homeTemplate();
   } else if (hash === '#all') {
     app.innerHTML = allPropertiesTemplate();
