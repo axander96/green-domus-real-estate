@@ -315,6 +315,7 @@ function bindEvents() {
   document.querySelectorAll('[data-slide]').forEach((button) => button.addEventListener('click', () => { activeSlide = Number(button.dataset.slide); render(); }));
   document.querySelector('[data-action="next-slide"]')?.addEventListener('click', () => { activeSlide = (activeSlide + 1) % heroSlides.length; render(); });
   document.querySelector('.mobile-menu')?.addEventListener('click', () => document.querySelector('.site-header')?.classList.toggle('menu-open'));
+  document.querySelectorAll('a[href="#contact"]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.querySelector('.site-header')?.classList.remove('menu-open'); }));
   document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => { activeFilter = button.dataset.filter; render(); }));
   document.querySelectorAll('[data-heart]').forEach((button) => button.addEventListener('click', (event) => { event.preventDefault(); button.classList.toggle('saved'); }));
   document.querySelectorAll('[data-gallery-image]').forEach((button) => button.addEventListener('click', () => { const gallery = button.closest('.detail-left'); gallery.querySelector('.detail-gallery img').src = button.dataset.galleryImage; gallery.querySelectorAll('.detail-thumbnail').forEach((thumbnail) => thumbnail.classList.remove('active')); button.classList.add('active'); }));
