@@ -1,0 +1,8 @@
+{
+  "categories": [
+    { "name": "Apartamento", "number": "01", "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80" },
+    { "name": "Casa", "number": "02", "image": "https://images.unsplash.com/photo-1600585152915-d208bec867a1?auto=format&fit=crop&w=600&q=80" },
+    { "name": "Villa", "number": "03", "image": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=600&q=80" },
+    { "name": "Terreno", "number": "04", "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=600&q=80" }
+  ]
+}

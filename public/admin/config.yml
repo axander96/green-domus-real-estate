@@ -25,13 +25,57 @@ collections:
               - { label: "Título", name: "title", widget: "string" }
               - { label: "Texto", name: "copy", widget: "text" }
               - { label: "Imagen", name: "image", widget: "image" }
-          - { label: "Nombre del agente", name: "agent_name", widget: "string" }
-          - { label: "Cargo del agente", name: "agent_role", widget: "string" }
-          - { label: "Foto del agente", name: "agent_photo", widget: "image", required: false }
+
+  - name: "agent"
+    label: "Agente y contacto"
+    files:
+      - name: "agent"
+        label: "Ficha del agente"
+        file: "public/content/agent.json"
+        fields:
+          - { label: "Nombre", name: "name", widget: "string" }
+          - { label: "Cargo", name: "role", widget: "string" }
+          - { label: "Foto", name: "photo", widget: "image", required: false }
           - { label: "Teléfono 1", name: "phone_one", widget: "string" }
           - { label: "Teléfono 2", name: "phone_two", widget: "string" }
-          - { label: "WhatsApp", name: "whatsapp_number", widget: "string" }
-          - { label: "Correo", name: "contact_email", widget: "string" }
+          - { label: "WhatsApp", name: "whatsapp", widget: "string" }
+          - { label: "Correo", name: "email", widget: "string" }
+
+  - name: "branding"
+    label: "Logos"
+    files:
+      - name: "branding"
+        label: "Logo superior e inferior"
+        file: "public/content/branding.json"
+        fields:
+          - { label: "Logo de la barra superior", name: "header_logo", widget: "image" }
+          - { label: "Logo del pie de página", name: "footer_logo", widget: "image" }
+
+  - name: "social"
+    label: "Redes sociales"
+    files:
+      - name: "social"
+        label: "Enlaces sociales"
+        file: "public/content/social.json"
+        fields:
+          - { label: "Instagram", name: "instagram", widget: "string", required: false }
+          - { label: "Facebook", name: "facebook", widget: "string", required: false }
+          - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
+
+  - name: "categories"
+    label: "Explora por tipo"
+    files:
+      - name: "categories"
+        label: "Categorías de propiedades"
+        file: "public/content/categories.json"
+        fields:
+          - label: "Categorías"
+            name: "categories"
+            widget: "list"
+            fields:
+              - { label: "Nombre", name: "name", widget: "string" }
+              - { label: "Número", name: "number", widget: "string" }
+              - { label: "Imagen", name: "image", widget: "image" }
 
   - name: "properties"
     label: "Propiedades"

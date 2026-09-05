@@ -55,7 +55,7 @@ const categories = [
 ];
 
 let properties = [];
-let contentSettings = { hero_slides: heroSlides, categories: [], about_eyebrow: 'CONOCE GREEN DOMUS', about_title: 'Encontrar una propiedad debería sentirse así.', about_body: 'Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.', agent_name: 'Asdrúbal Salas', agent_role: 'Agente de bienes raíces', agent_photo: '', phone_one: '(809) 671-1120', phone_two: '(829) 684-7760', whatsapp_number: '18096711120', contact_email: 'greendomusrealestate@gmail.com' };
+let contentSettings = { hero_slides: heroSlides, categories: [], agent_name: 'Asdrúbal Salas', agent_role: 'Agente de bienes raíces', agent_photo: '', phone_one: '(809) 671-1120', phone_two: '(829) 684-7760', whatsapp_number: '18096711120', contact_email: 'greendomusrealestate@gmail.com', header_logo: '/Favicon o logo/Logo blanco.svg', footer_logo: '/Favicon o logo/Diseño sin título.svg', social: {} };
 let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
@@ -129,10 +129,12 @@ async function syncProperties() {
 async function syncSiteSettings() {
   if (!supabase) {
     try {
-      const response = await fetch('/content/site.json', { cache: 'no-store' });
-      const data = await response.json();
+      const files = await Promise.all(['site', 'agent', 'branding', 'social', 'categories'].map((name) => fetch(`/content/${name}.json`, { cache: 'no-store' }).then((response) => response.json())));
+      const [site, agent, branding, social, categoryData] = files;
+      const data = { ...site, ...agent, header_logo: branding.header_logo, footer_logo: branding.footer_logo, social, categories: categoryData.categories || [] };
       contentSettings = { ...contentSettings, ...data };
       if (Array.isArray(data.hero_slides) && data.hero_slides.length) heroSlides.splice(0, heroSlides.length, ...data.hero_slides);
+      if (Array.isArray(data.categories) && data.categories.length) categories.splice(0, categories.length, ...data.categories.map((category) => [category.name, category.number, category.image]));
       settingsLoaded = true;
       render();
     } catch { render(); }
@@ -221,11 +223,13 @@ function render() {
 }
 
 function headerTemplate() {
-  return `<header class="site-header"><a class="brand" href="#"><img src="/Favicon%20o%20logo/Logo%20blanco.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="/admin/">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
+  return `<header class="site-header"><a class="brand" href="#"><img src="${contentSettings.header_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="/admin/">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
 }
 
 function footerTemplate() {
-  return `<footer><div class="footer-brand-area"><div class="brand footer-brand"><img src="/Favicon%20o%20logo/Dise%C3%B1o%20sin%20t%C3%ADtulo.svg" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details"><div class="footer-social"><span>SÍGUENOS</span><div><a href="https://www.instagram.com/greendomusrealestate" target="_blank" rel="noreferrer" aria-label="Instagram @greendomusrealestate">${icon('instagram')}</a><a href="https://www.facebook.com/Pavelsalas7" target="_blank" rel="noreferrer" aria-label="Facebook Pavelsalas7">${icon('facebook')}</a><a href="https://www.linkedin.com/in/asdrubal-salas-dip" target="_blank" rel="noreferrer" aria-label="LinkedIn Asdrúbal Salas-Dip">${icon('linkedin')}</a></div></div><div class="footer-contact"><a href="tel:+18096711120">${icon('phone')} (809) 671-1120 / (829) 684-7760</a><a href="mailto:greendomusrealestate@gmail.com">${icon('mail')} greendomusrealestate@gmail.com</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedias Services</strong></a></span></div></footer>`;
+  const social = contentSettings.social || {};
+  const links = [['instagram', social.instagram, 'Instagram'], ['facebook', social.facebook, 'Facebook'], ['linkedin', social.linkedin, 'LinkedIn']].filter(([, url]) => url).map(([name, url, label]) => `<a href="${url}" target="_blank" rel="noreferrer" aria-label="${label}">${icon(name)}</a>`).join('');
+  return `<footer><div class="footer-brand-area"><div class="brand footer-brand"><img src="${contentSettings.footer_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details">${links ? `<div class="footer-social"><span>SÍGUENOS</span><div>${links}</div></div>` : ''}<div class="footer-contact"><a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one} / ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedias Services</strong></a></span></div></footer>`;
 }
 
 function searchTemplate() {
