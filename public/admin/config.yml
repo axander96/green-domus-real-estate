@@ -22,13 +22,9 @@ collections:
             widget: "list"
             max: 3
             fields:
-              - { label: "Etiqueta", name: "eyebrow", widget: "string" }
               - { label: "Título", name: "title", widget: "string" }
               - { label: "Texto", name: "copy", widget: "text" }
               - { label: "Imagen", name: "image", widget: "image" }
-          - { label: "Etiqueta Nosotros", name: "about_eyebrow", widget: "string" }
-          - { label: "Título Nosotros", name: "about_title", widget: "string" }
-          - { label: "Texto Nosotros", name: "about_body", widget: "text" }
           - { label: "Nombre del agente", name: "agent_name", widget: "string" }
           - { label: "Cargo del agente", name: "agent_role", widget: "string" }
           - { label: "Foto del agente", name: "agent_photo", widget: "image", required: false }

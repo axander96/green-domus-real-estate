@@ -1,27 +1,21 @@
 {
   "hero_slides": [
     {
-      "eyebrow": "Una nueva forma de encontrar hogar",
       "title": "Espacios que hacen crecer tu historia.",
       "copy": "Propiedades seleccionadas con criterio, visión y un acompañamiento verdaderamente humano.",
       "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=2200&q=88"
     },
     {
-      "eyebrow": "Vive donde todo sucede",
       "title": "Tu próxima dirección empieza aquí.",
       "copy": "Descubre apartamentos, villas y oportunidades de inversión en los lugares que importan.",
       "image": "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=2200&q=88"
     },
     {
-      "eyebrow": "Invierte con perspectiva",
       "title": "Patrimonio con una mirada más verde.",
       "copy": "Te conectamos con propiedades que tienen valor hoy y posibilidades para mañana.",
       "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=88"
     }
   ],
-  "about_eyebrow": "CONOCE GREEN DOMUS",
-  "about_title": "Encontrar una propiedad debería sentirse así.",
-  "about_body": "Somos una firma inmobiliaria que entiende que cada espacio es una decisión importante. Por eso unimos conocimiento local, criterio y una atención cercana para ayudarte a elegir bien.",
   "agent_name": "Asdrúbal Salas",
   "agent_role": "Agente de bienes raíces",
   "agent_photo": "",
