@@ -3,10 +3,13 @@
     {
       "baths": 2,
       "is_featured": true,
+      "sector": "Piantini",
       "operation": "Venta",
       "price": 280000,
+      "floor": 4,
       "area": 142,
       "code": "GD-1001",
+      "currency": "US$",
       "beds": 3,
       "gallery": [
         "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85",
@@ -20,6 +23,7 @@
         "Residencial Cerrado"
       ],
       "title": "Apartamento Jardines del Este",
+      "parking": 2,
       "is_published": true,
       "type": "Apartamento",
       "tag": "Destacada",
@@ -33,6 +37,7 @@
       "price": 875000,
       "area": 388,
       "code": "GD-1002",
+      "currency": "US$",
       "beds": 4,
       "gallery": [
         "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1000&q=85"
@@ -58,6 +63,7 @@
       "price": 3500,
       "area": 260,
       "code": "GD-1003",
+      "currency": "US$",
       "beds": 3,
       "gallery": [],
       "location": "Juan Dolio",
@@ -81,6 +87,7 @@
       "price": 195000,
       "area": 1250,
       "code": "GD-1004",
+      "currency": "US$",
       "beds": 0,
       "gallery": [],
       "location": "Jarabacoa",
@@ -102,6 +109,7 @@
       "price": 4800,
       "area": 185,
       "code": "GD-1005",
+      "currency": "US$",
       "beds": 0,
       "gallery": [],
       "location": "Piantini, Santo Domingo",
@@ -124,6 +132,7 @@
       "price": 320000,
       "area": 156,
       "code": "GD-1006",
+      "currency": "US$",
       "beds": 0,
       "gallery": [],
       "location": "Evaristo Morales",
