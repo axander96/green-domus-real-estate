@@ -18,6 +18,7 @@ import './agent-after-amenities.css';
 import './property-detail-icons.css';
 import './final-polish-seo.css';
 import './detail-order-polish.css';
+import './final-visual-rules.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
