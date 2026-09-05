@@ -91,6 +91,7 @@ collections:
               - { label: "Título", name: "title", widget: "string" }
               - { label: "Tipo", name: "type", widget: "select", options: [Apartamento, Casa, Villa, Terreno, "Local comercial", Oficina, "Proyecto inmobiliario"] }
               - { label: "Operación", name: "operation", widget: "select", options: [Venta, Alquiler, "Venta y alquiler"] }
+              - { label: "Moneda", name: "currency", widget: "select", options: ["US$", "RD$"] }
               - { label: "Precio", name: "price", widget: "number", value_type: "float" }
               - { label: "Ubicación", name: "location", widget: "string" }
               - { label: "Área", name: "area", widget: "number", value_type: "float" }

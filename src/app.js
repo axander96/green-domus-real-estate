@@ -69,10 +69,11 @@ let adminLoading = false;
 let adminLoaded = false;
 let adminAuthenticated = false;
 let settingsLoaded = false;
+let activePropertyCurrency = 'US$';
 
 function mapRemoteProperty(property, images = []) {
   const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
-  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
+  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), currency: property.currency || 'US$', location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
 }
 
 async function loadAdminProperties() {
@@ -180,8 +181,10 @@ function applyEditableAgent() {
   if (message && property) message.value = `Hola ${contentSettings.agent_name}, estoy interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?`;
 }
 
-const formatPrice = (value, operation) => {
-  const price = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+const formatPrice = (value, operation, currencyCode = activePropertyCurrency) => {
+  const currency = currencyCode === 'RD$' ? 'DOP' : 'USD';
+  const symbol = currency === 'DOP' ? 'RD$' : 'US$';
+  const price = `${symbol} ${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value)}`;
   return operation === 'Alquiler' ? `${price} / mes` : price;
 };
 const icon = (name) => ({
@@ -211,7 +214,7 @@ function render() {
     const propertyKey = decodeURIComponent(hash.replace('#property-', ''));
     const property = properties.find((item) => String(item.id) === propertyKey || String(item.code) === propertyKey);
     app.innerHTML = property ? detailTemplate(property) : homeTemplate();
-  } else if (hash === '#all') {
+  } else if (hash.startsWith('#all')) {
     app.innerHTML = allPropertiesTemplate();
   } else if (hash === '#admin') {
     window.location.href = '/admin/';
@@ -229,7 +232,7 @@ function render() {
 }
 
 function headerTemplate() {
-  return `<header class="site-header"><a class="brand" href="#"><img src="${contentSettings.header_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#about">Nosotros</a><a href="#contact">Contacto</a></nav><a class="outline-button admin-link" href="/admin/">${icon('menu')} Admin</a><button class="mobile-menu">${icon('menu')}</button></header>`;
+  return `<header class="site-header"><a class="brand" href="#"><img src="${contentSettings.header_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></a><nav><a href="#properties">Propiedades</a><a href="#all?operation=Alquiler">Alquilar</a><a href="#all?operation=Venta">Comprar</a><a href="#contact">Contacto</a></nav><button class="mobile-menu">${icon('menu')}</button></header>`;
 }
 
 function footerTemplate() {
@@ -263,15 +266,16 @@ function homeTemplate() {
 }
 
 function propertyCard(property) {
-  return `<article class="property-card"><a href="#property-${property.id}" class="property-image"><img src="${property.image}" alt="${property.title}"/><span class="property-tag">${property.tag}</span><button class="heart" data-heart aria-label="Guardar propiedad">${icon('heart')}</button></a><div class="property-info"><div class="property-meta"><span>${property.operation}</span><span>${property.type}</span></div><a href="#property-${property.id}"><h3>${property.title}</h3></a><p class="location">${icon('pin')}${property.location}</p><div class="property-bottom"><strong>${formatPrice(property.price, property.operation)}</strong><span>${property.area} m²</span></div></div></article>`;
+  return `<article class="property-card"><a href="#property-${property.id || property.code}" class="property-image"><img src="${property.image}" alt="${property.title}"/><span class="property-tag">${property.tag}</span><button class="heart" data-heart aria-label="Guardar propiedad">${icon('heart')}</button></a><div class="property-info"><div class="property-meta"><span>${property.operation}</span><span>${property.type}</span></div><a href="#property-${property.id || property.code}"><h3>${property.title}</h3></a><p class="location">${icon('pin')}${property.location}</p><div class="property-bottom"><strong>${formatPrice(property.price, property.operation, property.currency)}</strong><span>${property.area} m²</span></div></div></article>`;
 }
 
 function allPropertiesTemplate() {
   const filtered = filteredProperties();
-  return `<div class="page-shell">${headerTemplate()}<main class="listing-page"><div class="listing-head"><div><p class="eyebrow dark">CATÁLOGO GREEN DOMUS</p><h1>Propiedades <em>disponibles.</em></h1><p>Encuentra un espacio que se parezca a tu siguiente capítulo.</p></div>${searchTemplate()}</div><div class="filter-row"><div class="filter-tabs">${['Todos', 'Venta', 'Alquiler'].map((filter) => `<button class="${activeFilter === filter ? 'active' : ''}" data-filter="${filter}">${filter}</button>`).join('')}</div><span>${filtered.length} propiedades encontradas</span></div><div class="property-grid all-grid">${filtered.length ? filtered.map(propertyCard).join('') : '<div class="empty-state"><h3>No encontramos esa combinación.</h3><p>Prueba con otra ciudad, operación o tipo de propiedad.</p></div>'}</div></main>${adminModal()}</div>`;
+  return `<div class="page-shell">${headerTemplate()}<main class="listing-page"><div class="listing-head"><div><p class="eyebrow dark">CATÁLOGO GREEN DOMUS</p><h1>Propiedades <em>disponibles.</em></h1><p>Encuentra un espacio que se parezca a tu siguiente capítulo.</p></div>${searchTemplate()}</div><div class="filter-row"><div class="filter-tabs">${['Todos', 'Venta', 'Alquiler'].map((filter) => `<button class="${activeFilter === filter ? 'active' : ''}" data-filter="${filter}">${filter}</button>`).join('')}</div><span>${filtered.length} propiedades encontradas</span></div><div class="property-grid all-grid">${filtered.length ? filtered.map(propertyCard).join('') : '<div class="empty-state"><h3>No encontramos esa combinación.</h3><p>Prueba con otra ciudad, operación o tipo de propiedad.</p></div>'}</div></main></div>`;
 }
 
 function detailTemplate(property) {
+  activePropertyCurrency = property.currency || 'US$';
   const gallery = propertyGallery(property);
   const amenities = property.amenities?.length ? property.amenities : (contentSettings.amenities?.length ? contentSettings.amenities : ['Acceso discapacitados', 'Comedor', 'Aire acondicionado', 'Cuarto de servicio', 'Amueblado', 'Garaje', 'Área social', 'Jardín', 'Baños', 'Mascotas permitidas', 'BBQ', 'Patio', 'Casa Club', 'Piscina', 'Cocina', 'Playa', 'Cocina Caliente', 'Recibidor', 'Terraza Exclusiva']);
   const contactMessage = `Hola ${contentSettings.agent_name}, estoy interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?`;
@@ -301,7 +305,7 @@ function adminEditForm(property = {}) {
 
 function filteredProperties() {
   const type = document.querySelector('#search-type')?.value || 'Todos';
-  const operation = document.querySelector('#search-operation')?.value || 'Todos';
+  const operation = new URLSearchParams(window.location.hash.split('?')[1] || '').get('operation') || document.querySelector('#search-operation')?.value || 'Todos';
   const location = document.querySelector('#search-location')?.value?.toLowerCase() || '';
   return properties.filter((property) => { const matchesFilter = activeFilter === 'Todos' || property.operation === activeFilter || (property.operation === 'Venta y alquiler' && ['Venta', 'Alquiler'].includes(activeFilter)); const matchesOperation = operation === 'Todos' || property.operation === operation || (property.operation === 'Venta y alquiler' && ['Venta', 'Alquiler'].includes(operation)); return matchesFilter && matchesOperation && (type === 'Todos' || property.type === type) && (!location || property.location.toLowerCase().includes(location)) && (!searchTerm || `${property.title} ${property.location}`.toLowerCase().includes(searchTerm)); });
 }
