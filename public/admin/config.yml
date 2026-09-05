@@ -39,18 +39,6 @@ collections:
           - { label: "WhatsApp", name: "whatsapp", widget: "string" }
           - { label: "Correo", name: "email", widget: "string" }
 
-  - name: "amenities"
-    label: "Amenidades"
-    files:
-      - name: "amenities"
-        label: "Amenidades disponibles"
-        file: "public/content/amenities.json"
-        fields:
-          - label: "Lista de amenidades"
-            name: "amenities"
-            widget: "list"
-            field: { label: "Amenidad", name: "amenity", widget: "string" }
-
   - name: "branding"
     label: "Logos"
     files:
@@ -114,5 +102,12 @@ collections:
               - { label: "Imagen principal", name: "image", widget: "image" }
               - { label: "Galería", name: "gallery", widget: "list", field: { label: "Imagen", name: "image", widget: "image" }, required: false }
               - { label: "Descripción", name: "description", widget: "text" }
-              - { label: "Amenidades existentes", name: "amenities", widget: "relation", collection: "amenities", file: "amenities", value_field: "amenities", search_fields: ["amenities"], display_fields: ["amenities"], multiple: true, required: false }
-              - { label: "Amenidades nuevas", name: "custom_amenities", widget: "list", field: { label: "Nueva amenidad", name: "amenity", widget: "string" }, required: false }
+              - label: "Amenidades"
+                name: "amenities"
+                widget: "list"
+                required: false
+                hint: "Agrega las amenidades una por una. Puedes elegir una sugerida o escribir una nueva."
+                field:
+                  label: "Amenidad"
+                  name: "amenity"
+                  widget: "string"
