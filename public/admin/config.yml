@@ -23,8 +23,16 @@ collections:
               - { label: "Título", name: "title", widget: "string" }
               - { label: "Texto", name: "copy", widget: "text" }
               - { label: "Imagen", name: "image", widget: "image" }
-              - { label: "Título de propiedades destacadas", name: "properties_title", widget: "string" }
-              - { label: "Título de explorar por tipo", name: "categories_title", widget: "string" }
+
+  - name: "sections"
+    label: "Títulos de secciones"
+    files:
+      - name: "sections"
+        label: "Títulos de la página principal"
+        file: "public/content/sections.json"
+        fields:
+          - { label: "Título de propiedades destacadas", name: "properties_title", widget: "string" }
+          - { label: "Título de explorar por tipo", name: "categories_title", widget: "string" }
 
   - name: "agent"
     label: "Agente y contacto"

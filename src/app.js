@@ -135,9 +135,9 @@ async function syncProperties() {
 async function syncSiteSettings() {
   if (!supabase) {
     try {
-      const files = await Promise.all(['site', 'agent', 'branding', 'social', 'categories', 'amenities'].map((name) => fetch(`/content/${name}.json`, { cache: 'no-store' }).then((response) => response.json())));
-      const [site, agent, branding, social, categoryData, amenityData] = files;
-      const data = { ...site, agent_name: agent.name, agent_role: agent.role, agent_photo: agent.photo, phone_one: agent.phone_one, phone_two: agent.phone_two, whatsapp_number: agent.whatsapp, contact_email: agent.email, header_logo: branding.header_logo, footer_logo: branding.footer_logo, social, categories: categoryData.categories || [], amenities: amenityData.amenities || [] };
+      const files = await Promise.all(['site', 'sections', 'agent', 'branding', 'social', 'categories', 'amenities'].map((name) => fetch(`/content/${name}.json`, { cache: 'no-store' }).then((response) => response.json())));
+      const [site, sections, agent, branding, social, categoryData, amenityData] = files;
+      const data = { ...site, ...sections, agent_name: agent.name, agent_role: agent.role, agent_photo: agent.photo, phone_one: agent.phone_one, phone_two: agent.phone_two, whatsapp_number: agent.whatsapp, contact_email: agent.email, header_logo: branding.header_logo, footer_logo: branding.footer_logo, social, categories: categoryData.categories || [], amenities: amenityData.amenities || [] };
       contentSettings = { ...contentSettings, ...data };
       if (Array.isArray(data.hero_slides) && data.hero_slides.length) heroSlides.splice(0, heroSlides.length, ...data.hero_slides);
       if (Array.isArray(data.categories) && data.categories.length) categories.splice(0, categories.length, ...data.categories.map((category) => [category.name, category.number, category.image]));
