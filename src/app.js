@@ -59,7 +59,7 @@ const categories = [
 ];
 
 let properties = [];
-let contentSettings = { hero_slides: heroSlides, categories: [], agent_name: 'Asdrúbal Salas', agent_role: 'Agente de bienes raíces', agent_photo: '', phone_one: '(809) 671-1120', phone_two: '(829) 684-7760', whatsapp_number: '18096711120', contact_email: 'greendomusrealestate@gmail.com', header_logo: '/Favicon o logo/Logo blanco.svg', footer_logo: '/Favicon o logo/Diseño sin título.svg', social: {} };
+let contentSettings = { hero_slides: heroSlides, properties_title: 'Propiedades con algo especial.', categories_title: 'Tu próximo espacio, a tu manera.', categories: [], agent_name: 'Asdrúbal Salas', agent_role: 'Agente de bienes raíces', agent_photo: '', phone_one: '(809) 671-1120', phone_two: '(829) 684-7760', whatsapp_number: '18096711120', contact_email: 'greendomusrealestate@gmail.com', header_logo: '/Favicon o logo/Logo blanco.svg', footer_logo: '/Favicon o logo/Diseño sin título.svg', social: {} };
 let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
@@ -164,6 +164,10 @@ function applyEditableCopy() {
   if (eyebrow) eyebrow.textContent = contentSettings.about_eyebrow;
   if (title) title.textContent = contentSettings.about_title;
   if (body) body.textContent = contentSettings.about_body;
+  const propertiesTitle = document.querySelector('#properties h2');
+  const categoriesTitle = document.querySelector('.category-section h2');
+  if (propertiesTitle && contentSettings.properties_title) propertiesTitle.textContent = contentSettings.properties_title;
+  if (categoriesTitle && contentSettings.categories_title) categoriesTitle.textContent = contentSettings.categories_title;
 }
 
 function applyEditableAgent() {
@@ -315,7 +319,7 @@ function bindEvents() {
   document.querySelectorAll('[data-slide]').forEach((button) => button.addEventListener('click', () => { activeSlide = Number(button.dataset.slide); render(); }));
   document.querySelector('[data-action="next-slide"]')?.addEventListener('click', () => { activeSlide = (activeSlide + 1) % heroSlides.length; render(); });
   document.querySelector('.mobile-menu')?.addEventListener('click', () => document.querySelector('.site-header')?.classList.toggle('menu-open'));
-  document.querySelectorAll('a[href="#contact"]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); document.querySelector('.site-header')?.classList.remove('menu-open'); }));
+  document.querySelectorAll('a[href="#contact"]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); const footer = document.querySelector('footer'); if (footer) footer.scrollIntoView({ behavior: 'smooth', block: 'start' }); else { window.location.hash = ''; setTimeout(() => document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); } document.querySelector('.site-header')?.classList.remove('menu-open'); }));
   document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => { activeFilter = button.dataset.filter; render(); }));
   document.querySelectorAll('[data-heart]').forEach((button) => button.addEventListener('click', (event) => { event.preventDefault(); button.classList.toggle('saved'); }));
   document.querySelectorAll('[data-gallery-image]').forEach((button) => button.addEventListener('click', () => { const gallery = button.closest('.detail-left'); gallery.querySelector('.detail-gallery img').src = button.dataset.galleryImage; gallery.querySelectorAll('.detail-thumbnail').forEach((thumbnail) => thumbnail.classList.remove('active')); button.classList.add('active'); }));
