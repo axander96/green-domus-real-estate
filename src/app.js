@@ -10,6 +10,7 @@ import './admin-access.css';
 import './agent-photo.css';
 import './presentation-cleanup.css';
 import './brand-footer-mobile.css';
+import './mobile-layout-fixes.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -230,11 +231,11 @@ function headerTemplate() {
 function footerTemplate() {
   const social = contentSettings.social || {};
   const links = [['instagram', social.instagram, 'Instagram'], ['facebook', social.facebook, 'Facebook'], ['linkedin', social.linkedin, 'LinkedIn']].filter(([, url]) => url).map(([name, url, label]) => `<a href="${url}" target="_blank" rel="noreferrer" aria-label="${label}">${icon(name)}</a>`).join('');
-  return `<footer><div class="footer-brand-area"><div class="brand footer-brand"><img src="${contentSettings.footer_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details">${links ? `<div class="footer-social"><span>SÍGUENOS</span><div>${links}</div></div>` : ''}<div class="footer-contact"><a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one} / ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedias Services</strong></a></span></div></footer>`;
+  return `<footer><div class="footer-brand-area"><div class="brand footer-brand"><img src="${contentSettings.footer_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details">${links ? `<div class="footer-social"><span>SÍGUENOS</span><div>${links}</div></div>` : ''}<div class="footer-contact"><a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one} / ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedias Services</strong></a></span><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span></div></footer>`;
 }
 
 function searchTemplate() {
-  return `<form class="search-panel" id="search-form"><div class="search-field wide"><label>¿Qué estás buscando?</label><select id="search-type"><option value="Todos">Todos los tipos</option>${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option>${type}</option>`).join('')}</select></div><div class="search-field"><label>Operación</label><select id="search-operation"><option value="Todos">Venta o alquiler</option><option>Venta</option><option>Alquiler</option></select></div><div class="search-field"><label>Ubicación</label><input id="search-location" placeholder="Ciudad o sector" /></div><button class="search-button" type="submit">${icon('search')} Buscar</button></form>`;
+  return `<form class="search-panel" id="search-form"><div class="search-field wide"><label>¿Qué estás buscando?</label><select id="search-type"><option value="Todos">Todos los tipos</option>${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option>${type}</option>`).join('')}</select></div><div class="search-field"><label>Operación</label><select id="search-operation"><option value="Todos">Venta o alquiler</option><option>Venta</option><option>Alquiler</option></select></div><button class="search-button" type="submit">${icon('search')} Buscar</button></form>`;
 }
 
 function propertyCode(property) {
@@ -303,6 +304,7 @@ function filteredProperties() {
 function bindEvents() {
   document.querySelectorAll('[data-slide]').forEach((button) => button.addEventListener('click', () => { activeSlide = Number(button.dataset.slide); render(); }));
   document.querySelector('[data-action="next-slide"]')?.addEventListener('click', () => { activeSlide = (activeSlide + 1) % heroSlides.length; render(); });
+  document.querySelector('.mobile-menu')?.addEventListener('click', () => document.querySelector('.site-header')?.classList.toggle('menu-open'));
   document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => { activeFilter = button.dataset.filter; render(); }));
   document.querySelectorAll('[data-heart]').forEach((button) => button.addEventListener('click', (event) => { event.preventDefault(); button.classList.toggle('saved'); }));
   document.querySelectorAll('[data-gallery-image]').forEach((button) => button.addEventListener('click', () => { const gallery = button.closest('.detail-left'); gallery.querySelector('.detail-gallery img').src = button.dataset.galleryImage; gallery.querySelectorAll('.detail-thumbnail').forEach((thumbnail) => thumbnail.classList.remove('active')); button.classList.add('active'); }));
