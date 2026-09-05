@@ -379,4 +379,11 @@ window.addEventListener('scroll', () => document.querySelector('.site-header')?.
 render();
 syncProperties();
 syncSiteSettings();
-setInterval(() => { if (!window.location.hash || window.location.hash === '#') { activeSlide = (activeSlide + 1) % heroSlides.length; render(); } }, 7000);
+setInterval(() => {
+  const isHome = window.location.pathname === '/' && (!window.location.hash || window.location.hash === '#');
+  const slides = contentSettings.hero_slides?.length ? contentSettings.hero_slides : heroSlides;
+  if (isHome && slides.length > 1 && document.visibilityState === 'visible') {
+    activeSlide = (activeSlide + 1) % slides.length;
+    render();
+  }
+}, 5000);
