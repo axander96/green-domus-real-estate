@@ -15,6 +15,7 @@ import './responsive-type-search.css';
 import './contact-mobile.css';
 import './home-section-order.css';
 import './agent-after-amenities.css';
+import './property-detail-icons.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -76,7 +77,7 @@ let activePropertyCurrency = 'US$';
 
 function mapRemoteProperty(property, images = []) {
   const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
-  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), currency: property.currency || 'US$', location: property.location, area: Number(property.area), beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
+  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), currency: property.currency || 'US$', location: property.location, sector: property.sector || '', area: Number(property.area), floor: property.floor || 0, parking: property.parking || 0, beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
 }
 
 async function loadAdminProperties() {
@@ -120,7 +121,7 @@ async function syncProperties() {
       const response = await fetch('/content/properties.json', { cache: 'no-store' });
       const catalog = await response.json();
       const entries = Array.isArray(catalog) ? catalog : catalog.properties;
-      properties = Array.isArray(entries) ? entries.filter((property) => property.is_published !== false).map((property, index) => ({ id: property.id || property.code || index, ...property, amenities: [...(property.amenities || []), ...(property.custom_amenities || [])], image: property.image || property.image_url, gallery: property.gallery || [] })) : [];
+      properties = Array.isArray(entries) ? entries.filter((property) => property.is_published !== false).map((property, index) => ({ id: property.id || property.code || index, ...property, floor: property.floor || 0, parking: property.parking || 0, sector: property.sector || '', amenities: [...(property.amenities || []), ...(property.custom_amenities || [])], image: property.image || property.image_url, gallery: property.gallery || [] })) : [];
       render();
     } catch { properties = []; render(); }
     return;
@@ -176,7 +177,7 @@ function applyEditableAgent() {
   const heading = document.querySelector('.agent-heading');
   const contact = document.querySelector('.agent-contact');
   const message = document.querySelector('.agent-card textarea');
-  if (!heading || !contact) return;
+  if (!heading || !contact || !message) return;
   const identity = heading.querySelector('div:last-child');
   if (identity) identity.innerHTML = `<h3>${contentSettings.agent_name}</h3><p>${contentSettings.agent_role}</p>`;
   const photo = contentSettings.agent_photo;
@@ -186,6 +187,24 @@ function applyEditableAgent() {
   const propertyKey = decodeURIComponent(window.location.hash.replace('#property-', ''));
   const property = properties.find((item) => String(item.id) === propertyKey || String(item.code) === propertyKey);
   if (message && property) message.value = `Hola ${contentSettings.agent_name}, estoy interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?`;
+}
+
+function applyPropertyDetails() {
+  const key = decodeURIComponent(window.location.hash.replace('#property-', ''));
+  if (!key) return;
+  const property = properties.find((item) => String(item.id) === key || String(item.code) === key);
+  const summary = document.querySelector('.detail-summary');
+  if (!property || !summary) return;
+  const meta = summary.querySelector('.property-meta');
+  const location = summary.querySelector('.location');
+  const price = summary.querySelector('.detail-price');
+  const specs = summary.querySelector('.detail-specs');
+  if (meta && price) price.before(meta);
+  if (location && property.sector && !summary.querySelector('.sector-line')) location.insertAdjacentHTML('afterend', `<p class="sector-line">${icon('pin')}${property.sector}</p>`);
+  if (specs) {
+    if (property.floor) specs.insertAdjacentHTML('beforeend', `<span>${icon('floor')}<b>${property.floor}</b>Piso</span>`);
+    if (property.parking) specs.insertAdjacentHTML('beforeend', `<span>${icon('car')}<b>${property.parking}</b>Parqueos</span>`);
+  }
 }
 
 const formatPrice = (value, operation, currencyCode = activePropertyCurrency) => {
@@ -203,6 +222,8 @@ const icon = (name) => ({
   bed: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-7h18v7M5 11V7h6a3 3 0 0 1 3 3v1M3 15h18"/></svg>',
   bath: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M6 12V6a2 2 0 0 1 4 0v1M4 16c1 2 2 3 4 3h8c2 0 3-1 4-3"/></svg>',
   area: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6M4 4v6M20 4h-6M20 4v6M4 20h6M4 20v-6M20 20h-6M20 20v-6"/></svg>',
+  floor: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 19V5h12v14M9 8h2M13 8h2M9 12h2M13 12h2M9 16h2M13 16h2"/></svg>',
+  car: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 14h.1M17 14h.1"/></svg>',
   check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>',
   heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.7c0 5-8.8 10.2-8.8 10.2S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg>',
   plus: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
@@ -235,6 +256,7 @@ function render() {
   bindEvents();
   applyEditableCopy();
   applyEditableAgent();
+  applyPropertyDetails();
   if (hash === '#admin' && hasSupabase && !adminLoaded && !adminLoading) loadAdminProperties();
 }
 

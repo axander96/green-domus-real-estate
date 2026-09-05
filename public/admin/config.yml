@@ -104,7 +104,10 @@ collections:
               - { label: "Moneda", name: "currency", widget: "select", options: ["US$", "RD$"] }
               - { label: "Precio", name: "price", widget: "number", value_type: "float" }
               - { label: "Ubicación", name: "location", widget: "string" }
+              - { label: "Sector", name: "sector", widget: "string", required: false }
               - { label: "Área", name: "area", widget: "number", value_type: "float" }
+              - { label: "Piso", name: "floor", widget: "number", value_type: "int", required: false }
+              - { label: "Parqueos", name: "parking", widget: "number", value_type: "int", required: false }
               - { label: "Habitaciones", name: "beds", widget: "number", value_type: "int" }
               - { label: "Baños", name: "baths", widget: "number", value_type: "int" }
               - { label: "Etiqueta", name: "tag", widget: "string", default: "Nueva" }
