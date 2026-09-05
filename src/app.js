@@ -16,6 +16,8 @@ import './contact-mobile.css';
 import './home-section-order.css';
 import './agent-after-amenities.css';
 import './property-detail-icons.css';
+import './final-polish-seo.css';
+import './detail-order-polish.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [

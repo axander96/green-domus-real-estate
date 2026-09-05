@@ -3,7 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Green Domus Real Estate: propiedades seleccionadas para vivir, invertir y crecer." />
+    <meta name="description" content="Green Domus Real Estate: apartamentos, casas, villas, terrenos y locales en venta y alquiler en República Dominicana." />
+    <meta name="keywords" content="inmobiliaria República Dominicana, apartamentos en venta, casas en alquiler, villas, terrenos, locales comerciales, Santo Domingo, Punta Cana" />
+    <meta name="author" content="Green Domus Real Estate" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Green Domus Real Estate | Propiedades en venta y alquiler" />
+    <meta property="og:description" content="Encuentra propiedades seleccionadas para vivir, invertir y crecer en República Dominicana." />
+    <meta property="og:url" content="https://greendomusrealestate.com/" />
+    <meta property="og:image" content="https://greendomusrealestate.com/Favicon%20o%20logo/Favicon.svg" />
+    <link rel="canonical" href="https://greendomusrealestate.com/" />
     <title>Green Domus Real Estate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,6 +20,18 @@
   </head>
   <body>
     <div id="app"></div>
+    <script type="application/ld+json">
+      {
+        "@context":"https://schema.org",
+        "@type":"RealEstateAgent",
+        "name":"Green Domus Real Estate",
+        "url":"https://greendomusrealestate.com/",
+        "email":"greendomusrealestate@gmail.com",
+        "telephone":"+1-809-671-1120",
+        "address":{"@type":"PostalAddress","addressLocality":"Santo Domingo","addressCountry":"DO"},
+        "areaServed":"República Dominicana"
+      }
+    </script>
     <script>
       if (location.hash && /#(invite_token|confirmation_token|recovery_token|access_token)=/.test(location.hash) && !location.pathname.startsWith('/admin')) {
         location.replace('/admin/' + location.hash);

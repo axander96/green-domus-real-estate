@@ -1,0 +1,1 @@
+.detail-summary{display:flex;flex-direction:column}.detail-summary h1{order:1}.detail-summary .location{order:2}.detail-summary .property-meta{order:3}.detail-summary .detail-price{order:4}.detail-summary .detail-specs{order:5}.agent-card svg:last-child{display:none}.whatsapp-button svg:last-child{display:none}.whatsapp-button{justify-content:center}
