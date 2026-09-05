@@ -1,115 +1,171 @@
 {
-	"properties": [
-		{
-			"code": "GD-1001",
-			"title": "Apartamento Jardines del Este",
-			"type": "Apartamento",
-			"operation": "Venta",
-			"price": 280000,
-			"location": "Santo Domingo Este",
-			"area": 142,
-			"beds": 3,
-			"baths": 2,
-			"tag": "Destacada",
-			"is_published": true,
-			"is_featured": true,
-			"image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85",
-			"gallery": [
-				"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85",
-				"https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85"
-			],
-			"description": "Una residencia luminosa y serena, con espacios amplios y una distribución pensada para el día a día.",
-			"amenities": ["Ascensor", "Balcón", "Cocina Caliente", "Residencial Cerrado"]
-		},
-		{
-			"code": "GD-1002",
-			"title": "Villa Brisa del Mar",
-			"type": "Villa",
-			"operation": "Venta y alquiler",
-			"price": 875000,
-			"location": "Punta Cana",
-			"area": 388,
-			"beds": 4,
-			"baths": 4,
-			"tag": "Exclusiva",
-			"is_published": true,
-			"is_featured": true,
-			"image": "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=85",
-			"gallery": ["https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1000&q=85"],
-			"description": "Arquitectura abierta, jardín tropical y la calma de estar siempre cerca del mar.",
-			"amenities": ["Piscina", "Jardín", "Terraza Exclusiva", "Vigilancia 24 horas"]
-		},
-		{
-			"code": "GD-1003",
-			"title": "Casa Luz de Guavaberry",
-			"type": "Casa",
-			"operation": "Alquiler",
-			"price": 3500,
-			"location": "Juan Dolio",
-			"area": 260,
-			"beds": 3,
-			"baths": 3,
-			"tag": "Disponible",
-			"is_published": true,
-			"is_featured": false,
-			"image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=85",
-			"gallery": [],
-			"description": "Una casa familiar rodeada de verde, con terrazas habitables y una atmósfera tranquila.",
-			"amenities": ["Amueblado", "Balcón", "Garaje", "Casa Club"]
-		},
-		{
-			"code": "GD-1004",
-			"title": "Solar Encanto del Valle",
-			"type": "Terreno",
-			"operation": "Venta",
-			"price": 195000,
-			"location": "Jarabacoa",
-			"area": 1250,
-			"beds": 0,
-			"baths": 0,
-			"tag": "Inversión",
-			"is_published": true,
-			"is_featured": true,
-			"image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85",
-			"gallery": [],
-			"description": "Topografía generosa y vistas naturales para desarrollar un proyecto con identidad.",
-			"amenities": ["Residencial Cerrado", "Vigilancia 24 horas"]
-		},
-		{
-			"code": "GD-1005",
-			"title": "Local Comercial Piantini 27",
-			"type": "Local comercial",
-			"operation": "Alquiler",
-			"price": 4800,
-			"location": "Piantini, Santo Domingo",
-			"area": 185,
-			"beds": 0,
-			"baths": 2,
-			"tag": "Oportunidad",
-			"is_published": true,
-			"is_featured": false,
-			"image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=85",
-			"gallery": [],
-			"description": "Un espacio comercial flexible en una de las zonas más activas y conectadas de la ciudad.",
-			"amenities": ["Ascensor", "Estacionamiento techado", "Portero"]
-		},
-		{
-			"code": "GD-1006",
-			"title": "Oficinas Origen",
-			"type": "Oficina",
-			"operation": "Venta",
-			"price": 320000,
-			"location": "Evaristo Morales",
-			"area": 156,
-			"beds": 0,
-			"baths": 2,
-			"tag": "Nueva",
-			"is_published": true,
-			"is_featured": false,
-			"image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85",
-			"gallery": [],
-			"description": "Luz natural, salas colaborativas y una escala profesional para tu próximo capítulo.",
-			"amenities": ["Ascensor", "Planta Eléctrica", "Parqueos Paralelos"]
-		}
-	]
+  "properties": [
+    {
+      "baths": 2,
+      "is_featured": true,
+      "operation": "Venta",
+      "price": 280000,
+      "area": 142,
+      "code": "GD-1001",
+      "beds": 3,
+      "gallery": [
+        "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85",
+        "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85"
+      ],
+      "location": "Santo Domingo Este",
+      "amenities": [
+        "Ascensor",
+        "Balcón",
+        "Cocina Caliente",
+        "Residencial Cerrado"
+      ],
+      "title": "Apartamento Jardines del Este",
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Destacada",
+      "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85",
+      "description": "Una residencia luminosa y serena, con espacios amplios y una distribución pensada para el día a día."
+    },
+    {
+      "baths": 4,
+      "is_featured": true,
+      "operation": "Venta y alquiler",
+      "price": 875000,
+      "area": 388,
+      "code": "GD-1002",
+      "beds": 4,
+      "gallery": [
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1000&q=85"
+      ],
+      "location": "Punta Cana",
+      "amenities": [
+        "Piscina",
+        "Jardín",
+        "Terraza Exclusiva",
+        "Vigilancia 24 horas"
+      ],
+      "title": "Villa Brisa del Mar",
+      "is_published": true,
+      "type": "Villa",
+      "tag": "Exclusiva",
+      "image": "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=85",
+      "description": "Arquitectura abierta, jardín tropical y la calma de estar siempre cerca del mar."
+    },
+    {
+      "baths": 3,
+      "is_featured": false,
+      "operation": "Alquiler",
+      "price": 3500,
+      "area": 260,
+      "code": "GD-1003",
+      "beds": 3,
+      "gallery": [],
+      "location": "Juan Dolio",
+      "amenities": [
+        "Amueblado",
+        "Balcón",
+        "Garaje",
+        "Casa Club"
+      ],
+      "title": "Casa Luz de Guavaberry",
+      "is_published": true,
+      "type": "Casa",
+      "tag": "Disponible",
+      "image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=85",
+      "description": "Una casa familiar rodeada de verde, con terrazas habitables y una atmósfera tranquila."
+    },
+    {
+      "baths": 0,
+      "is_featured": true,
+      "operation": "Venta",
+      "price": 195000,
+      "area": 1250,
+      "code": "GD-1004",
+      "beds": 0,
+      "gallery": [],
+      "location": "Jarabacoa",
+      "amenities": [
+        "Residencial Cerrado",
+        "Vigilancia 24 horas"
+      ],
+      "title": "Solar Encanto del Valle",
+      "is_published": true,
+      "type": "Terreno",
+      "tag": "Inversión",
+      "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85",
+      "description": "Topografía generosa y vistas naturales para desarrollar un proyecto con identidad."
+    },
+    {
+      "baths": 2,
+      "is_featured": false,
+      "operation": "Alquiler",
+      "price": 4800,
+      "area": 185,
+      "code": "GD-1005",
+      "beds": 0,
+      "gallery": [],
+      "location": "Piantini, Santo Domingo",
+      "amenities": [
+        "Ascensor",
+        "Estacionamiento techado",
+        "Portero"
+      ],
+      "title": "Local Comercial Piantini 27",
+      "is_published": true,
+      "type": "Local comercial",
+      "tag": "Oportunidad",
+      "image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=85",
+      "description": "Un espacio comercial flexible en una de las zonas más activas y conectadas de la ciudad."
+    },
+    {
+      "baths": 2,
+      "is_featured": false,
+      "operation": "Venta",
+      "price": 320000,
+      "area": 156,
+      "code": "GD-1006",
+      "beds": 0,
+      "gallery": [],
+      "location": "Evaristo Morales",
+      "amenities": [
+        "Ascensor",
+        "Planta Eléctrica",
+        "Parqueos Paralelos"
+      ],
+      "title": "Oficinas Origen",
+      "is_published": true,
+      "type": "Oficina",
+      "tag": "Nueva",
+      "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85",
+      "description": "Luz natural, salas colaborativas y una escala profesional para tu próximo capítulo."
+    },
+    {
+      "baths": 1,
+      "is_featured": true,
+      "operation": "Venta",
+      "price": 1000000,
+      "area": 400,
+      "code": "GD-0522",
+      "currency": "RD$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/649509801_26485470187749466_3564559073959780775_n.jpg",
+        "/uploads/649131171_26485470204416131_7388978819027633096_n.jpg",
+        "/uploads/649122300_26485470071082811_6813774260242285553_n.jpg"
+      ],
+      "location": "Monseñor Nouel",
+      "amenities": [
+        "Cocina Caliente",
+        "Portero",
+        "Portón Eléctrico",
+        "Vigilancia 24 horas"
+      ],
+      "title": "La Casa de tus Sueños",
+      "is_published": true,
+      "type": "Casa",
+      "tag": "Nueva",
+      "image": "/uploads/649203065_26485469921082826_7824048078673416998_n.jpg",
+      "description": "Hermosa cada para vivir con tu familia o iniciar una familia"
+    }
+  ]
 }
