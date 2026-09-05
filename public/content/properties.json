@@ -53,7 +53,7 @@
     },
     {
       "baths": 3,
-      "is_featured": false,
+      "is_featured": true,
       "operation": "Alquiler",
       "price": 3500,
       "area": 260,
