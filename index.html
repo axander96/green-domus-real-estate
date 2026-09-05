@@ -12,6 +12,11 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      if (location.hash && /#(invite_token|confirmation_token|recovery_token|access_token)=/.test(location.hash) && !location.pathname.startsWith('/admin')) {
+        location.replace('/admin/' + location.hash);
+      }
+    </script>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>
