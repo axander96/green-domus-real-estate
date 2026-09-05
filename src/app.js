@@ -12,6 +12,7 @@ import './presentation-cleanup.css';
 import './brand-footer-mobile.css';
 import './mobile-layout-fixes.css';
 import './responsive-type-search.css';
+import './contact-mobile.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
@@ -238,7 +239,7 @@ function headerTemplate() {
 function footerTemplate() {
   const social = contentSettings.social || {};
   const links = [['instagram', social.instagram, 'Instagram'], ['facebook', social.facebook, 'Facebook'], ['linkedin', social.linkedin, 'LinkedIn']].filter(([, url]) => url).map(([name, url, label]) => `<a href="${url}" target="_blank" rel="noreferrer" aria-label="${label}">${icon(name)}</a>`).join('');
-  return `<footer><div class="footer-brand-area"><div class="brand footer-brand"><img src="${contentSettings.footer_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details">${links ? `<div class="footer-social"><span>SÍGUENOS</span><div>${links}</div></div>` : ''}<div class="footer-contact"><a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one} / ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedias Services</strong></a></span><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span></div></footer>`;
+  return `<footer id="contact"><div class="footer-brand-area"><div class="brand footer-brand"><img src="${contentSettings.footer_logo}" alt=""/><span>GREEN DOMUS<small>REAL ESTATE</small></span></div><p class="footer-motto">Propiedades con criterio,<br/>espacios con propósito.</p></div><div class="footer-details">${links ? `<div class="footer-social"><span>SÍGUENOS</span><div>${links}</div></div>` : ''}<div class="footer-contact"><a href="tel:${contentSettings.phone_one.replace(/\D/g, '')}">${icon('phone')} ${contentSettings.phone_one} / ${contentSettings.phone_two}</a><a href="mailto:${contentSettings.contact_email}">${icon('mail')} ${contentSettings.contact_email}</a><span>${icon('pin')} Santo Domingo, Distrito Nacional, Rep. Dom.</span></div></div><div class="footer-bottom"><span>Desarrollado por <a href="https://www.aramultimedias.com/" target="_blank" rel="noreferrer"><strong>Ara Multimedia Services</strong></a></span><span>© 2026 Green Domus Real Estate. Todos los derechos reservados</span></div></footer>`;
 }
 
 function searchTemplate() {
