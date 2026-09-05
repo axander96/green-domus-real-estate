@@ -110,4 +110,5 @@ collections:
                 field:
                   label: "Amenidad"
                   name: "amenity"
-                  widget: "string"
+                  widget: "select"
+                  options: [Ascensor, Balcón, "Cocina Caliente", "Cuarto de Servicio", "Estacionamiento techado", "Gas común", Lobby, "NO AIRBNB FRIENDLY", "No se aceptan mascotas", "Parqueos Paralelos", "Planta Eléctrica", Portero, "Portón Eléctrico", "Residencial Cerrado", "Vigilancia 24 horas"]
