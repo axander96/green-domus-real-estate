@@ -8,6 +8,7 @@ import './typography-overrides.css';
 import './admin-crud.css';
 import './admin-access.css';
 import './agent-photo.css';
+import './presentation-cleanup.css';
 import { supabase, hasSupabase } from './supabase';
 
 const heroSlides = [
