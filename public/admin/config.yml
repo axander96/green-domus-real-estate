@@ -39,6 +39,18 @@ collections:
           - { label: "WhatsApp", name: "whatsapp", widget: "string" }
           - { label: "Correo", name: "email", widget: "string" }
 
+  - name: "amenities"
+    label: "Amenidades"
+    files:
+      - name: "amenities"
+        label: "Amenidades disponibles"
+        file: "public/content/amenities.json"
+        fields:
+          - label: "Lista de amenidades"
+            name: "amenities"
+            widget: "list"
+            field: { label: "Amenidad", name: "amenity", widget: "string" }
+
   - name: "branding"
     label: "Logos"
     files:
@@ -90,7 +102,7 @@ collections:
               - { label: "Código", name: "code", widget: "string" }
               - { label: "Título", name: "title", widget: "string" }
               - { label: "Tipo", name: "type", widget: "select", options: [Apartamento, Casa, Villa, Terreno, "Local comercial", Oficina, "Proyecto inmobiliario"] }
-              - { label: "Operación", name: "operation", widget: "select", options: [Venta, Alquiler] }
+              - { label: "Operación", name: "operation", widget: "select", options: [Venta, Alquiler, "Venta y alquiler"] }
               - { label: "Precio", name: "price", widget: "number", value_type: "float" }
               - { label: "Ubicación", name: "location", widget: "string" }
               - { label: "Área", name: "area", widget: "number", value_type: "float" }
@@ -102,4 +114,5 @@ collections:
               - { label: "Imagen principal", name: "image", widget: "image" }
               - { label: "Galería", name: "gallery", widget: "list", field: { label: "Imagen", name: "image", widget: "image" }, required: false }
               - { label: "Descripción", name: "description", widget: "text" }
-              - { label: "Amenidades", name: "amenities", widget: "list", field: { label: "Amenidad", name: "amenity", widget: "string" }, required: false }
+              - { label: "Amenidades existentes", name: "amenities", widget: "relation", collection: "amenities", file: "amenities", value_field: "amenities", search_fields: ["amenities"], display_fields: ["amenities"], multiple: true, required: false }
+              - { label: "Amenidades nuevas", name: "custom_amenities", widget: "list", field: { label: "Nueva amenidad", name: "amenity", widget: "string" }, required: false }

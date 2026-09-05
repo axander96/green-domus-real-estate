@@ -116,7 +116,7 @@ async function syncProperties() {
       const response = await fetch('/content/properties.json', { cache: 'no-store' });
       const catalog = await response.json();
       const entries = Array.isArray(catalog) ? catalog : catalog.properties;
-      properties = Array.isArray(entries) ? entries.filter((property) => property.is_published !== false).map((property, index) => ({ id: property.id || property.code || index, ...property, image: property.image || property.image_url, gallery: property.gallery || [] })) : [];
+      properties = Array.isArray(entries) ? entries.filter((property) => property.is_published !== false).map((property, index) => ({ id: property.id || property.code || index, ...property, amenities: [...(property.amenities || []), ...(property.custom_amenities || [])], image: property.image || property.image_url, gallery: property.gallery || [] })) : [];
       render();
     } catch { properties = []; render(); }
     return;
@@ -132,9 +132,9 @@ async function syncProperties() {
 async function syncSiteSettings() {
   if (!supabase) {
     try {
-      const files = await Promise.all(['site', 'agent', 'branding', 'social', 'categories'].map((name) => fetch(`/content/${name}.json`, { cache: 'no-store' }).then((response) => response.json())));
-      const [site, agent, branding, social, categoryData] = files;
-      const data = { ...site, ...agent, header_logo: branding.header_logo, footer_logo: branding.footer_logo, social, categories: categoryData.categories || [] };
+      const files = await Promise.all(['site', 'agent', 'branding', 'social', 'categories', 'amenities'].map((name) => fetch(`/content/${name}.json`, { cache: 'no-store' }).then((response) => response.json())));
+      const [site, agent, branding, social, categoryData, amenityData] = files;
+      const data = { ...site, agent_name: agent.name, agent_role: agent.role, agent_photo: agent.photo, phone_one: agent.phone_one, phone_two: agent.phone_two, whatsapp_number: agent.whatsapp, contact_email: agent.email, header_logo: branding.header_logo, footer_logo: branding.footer_logo, social, categories: categoryData.categories || [], amenities: amenityData.amenities || [] };
       contentSettings = { ...contentSettings, ...data };
       if (Array.isArray(data.hero_slides) && data.hero_slides.length) heroSlides.splice(0, heroSlides.length, ...data.hero_slides);
       if (Array.isArray(data.categories) && data.categories.length) categories.splice(0, categories.length, ...data.categories.map((category) => [category.name, category.number, category.image]));
@@ -236,7 +236,7 @@ function footerTemplate() {
 }
 
 function searchTemplate() {
-  return `<form class="search-panel" id="search-form"><div class="search-field wide"><label>¿Qué estás buscando?</label><select id="search-type"><option value="Todos">Todos los tipos</option>${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option>${type}</option>`).join('')}</select></div><div class="search-field"><label>Operación</label><select id="search-operation"><option value="Todos">Venta o alquiler</option><option>Venta</option><option>Alquiler</option></select></div><button class="search-button" type="submit">${icon('search')} Buscar</button></form>`;
+  return `<form class="search-panel" id="search-form"><div class="search-field wide"><label>¿Qué estás buscando?</label><select id="search-type"><option value="Todos">Todos los tipos</option>${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option>${type}</option>`).join('')}</select></div><div class="search-field"><label>Operación</label><select id="search-operation"><option value="Todos">Venta o alquiler</option><option>Venta</option><option>Alquiler</option><option>Venta y alquiler</option></select></div><button class="search-button" type="submit">${icon('search')} Buscar</button></form>`;
 }
 
 function propertyCode(property) {
@@ -270,7 +270,7 @@ function allPropertiesTemplate() {
 
 function detailTemplate(property) {
   const gallery = propertyGallery(property);
-  const amenities = property.amenities || ['Acceso discapacitados', 'Comedor', 'Aire acondicionado', 'Cuarto de servicio', 'Amueblado', 'Garaje', 'Área social', 'Jardín', 'Baños', 'Mascotas permitidas', 'BBQ', 'Patio', 'Casa Club', 'Piscina', 'Cocina', 'Playa', 'Cocina Caliente', 'Recibidor', 'Terraza Exclusiva'];
+  const amenities = property.amenities?.length ? property.amenities : (contentSettings.amenities?.length ? contentSettings.amenities : ['Acceso discapacitados', 'Comedor', 'Aire acondicionado', 'Cuarto de servicio', 'Amueblado', 'Garaje', 'Área social', 'Jardín', 'Baños', 'Mascotas permitidas', 'BBQ', 'Patio', 'Casa Club', 'Piscina', 'Cocina', 'Playa', 'Cocina Caliente', 'Recibidor', 'Terraza Exclusiva']);
   return `<div class="page-shell">${headerTemplate()}<main class="detail-page"><a href="#all" class="back-link">${icon('arrow')} Volver a propiedades</a><div class="detail-layout"><div class="detail-left"><div class="detail-gallery"><img src="${gallery[0]}" alt="${property.title}"/><div class="gallery-note">${property.tag}<span>Código ${propertyCode(property)}</span></div></div><div class="detail-thumbnails">${gallery.map((image, index) => `<button class="detail-thumbnail ${index === 0 ? 'active' : ''}" data-gallery-image="${image}" aria-label="Ver imagen ${index + 1}"><img src="${image}" alt=""/></button>`).join('')}</div><section class="property-panel description-panel"><h3>Descripción</h3><div class="description-copy"><p>${property.description}</p><p>Diseñada para quienes valoran la ubicación, la calidad y la posibilidad de hacer suyo cada rincón. Conoce todos los detalles conversando con nuestro equipo.</p></div></section><section class="property-panel"><h3>Información General</h3><div class="general-grid"><span><small>Código de la inmobiliaria</small><b>${propertyCode(property)}</b></span><span><small>Tipo</small><b>${property.type}</b></span><span><small>Operación</small><b>${property.operation}</b></span><span><small>Ubicación</small><b>${property.location}</b></span><span><small>Habitaciones</small><b>${property.beds || 0}</b></span><span><small>Baños</small><b>${property.baths || 0}</b></span><span><small>Área total</small><b>${property.area} m²</b></span><span><small>Precio</small><b>${formatPrice(property.price, property.operation)}</b></span></div></section><section class="property-panel"><h3>Amenidades</h3><div class="amenities-grid">${amenities.map((amenity) => `<span>${icon('check')}${amenity}</span>`).join('')}</div></section></div><div class="detail-right"><div class="detail-summary"><div class="property-meta"><span>${property.operation}</span><span>${property.type}</span></div><h1>${property.title}</h1><p class="location">${icon('pin')}${property.location}</p><strong class="detail-price">${formatPrice(property.price, property.operation)}</strong><div class="detail-specs"><span>${icon('area')}<b>${property.area} m²</b>Área total</span>${property.beds ? `<span>${icon('bed')}<b>${property.beds}</b>Habitaciones</span>` : ''}${property.baths ? `<span>${icon('bath')}<b>${property.baths}</b>Baños</span>` : ''}</div></div><aside class="agent-card"><div class="agent-heading"><div class="agent-avatar">AS</div><div><h3>Asdrúbal Salas</h3><p>Agente de bienes raíces</p></div></div><div class="agent-contact"><a href="tel:+18096711120">${icon('phone')} (809) 671-1120</a><a href="tel:+18296847760">${icon('phone')} (829) 684-7760</a><a href="mailto:greendomusrealestate@gmail.com">${icon('mail')} greendomusrealestate@gmail.com</a></div><textarea readonly>Hola Asdrúbal, tengo un cliente interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?</textarea><a class="whatsapp-button" href="${whatsappUrl(property)}" target="_blank" rel="noreferrer">${icon('whatsapp')} Enviar este mensaje ${icon('arrow')}</a></aside></div></div></main></div>`;
 }
 
@@ -299,7 +299,7 @@ function filteredProperties() {
   const type = document.querySelector('#search-type')?.value || 'Todos';
   const operation = document.querySelector('#search-operation')?.value || 'Todos';
   const location = document.querySelector('#search-location')?.value?.toLowerCase() || '';
-  return properties.filter((property) => (activeFilter === 'Todos' || property.operation === activeFilter) && (type === 'Todos' || property.type === type) && (operation === 'Todos' || property.operation === operation) && (!location || property.location.toLowerCase().includes(location)) && (!searchTerm || `${property.title} ${property.location}`.toLowerCase().includes(searchTerm)));
+  return properties.filter((property) => { const matchesFilter = activeFilter === 'Todos' || property.operation === activeFilter || (property.operation === 'Venta y alquiler' && ['Venta', 'Alquiler'].includes(activeFilter)); const matchesOperation = operation === 'Todos' || property.operation === operation || (property.operation === 'Venta y alquiler' && ['Venta', 'Alquiler'].includes(operation)); return matchesFilter && matchesOperation && (type === 'Todos' || property.type === type) && (!location || property.location.toLowerCase().includes(location)) && (!searchTerm || `${property.title} ${property.location}`.toLowerCase().includes(searchTerm)); });
 }
 
 function bindEvents() {
