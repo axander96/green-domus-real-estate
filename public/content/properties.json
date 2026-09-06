@@ -177,22 +177,25 @@
       "description": "Hermosa cada para vivir con tu familia o iniciar una familia"
     },
     {
+      "baths": 1,
       "is_featured": false,
       "sector": "Urbanización Miramar",
+      "operation": "Venta",
       "price": 55000000,
       "area": 1141.3,
       "code": "GD-1050",
       "currency": "RD$",
+      "beds": 1,
       "gallery": [
         "/uploads/1000001452.jpg",
         "/uploads/1000001454.jpg",
         "/uploads/1000001449.jpg"
       ],
       "location": "Autopista 30 de mayo",
-      "title": "Venta de edificios completo",
+      "title": "Venta de edificio completo",
       "is_published": true,
       "type": "Apartamento",
-      "tag": "Nueva",
+      "tag": "Inversion",
       "description": "🏢 VENTA DE EDIFICIO COMPLETO\n📍 Urbanización Miramar\n💰 Precio de Venta: RD$55,000,000.00\n📐 Dimensiones del Inmueble\n• Área de solar: 394.48 m²\n• Área de construcción: 1,141.30 m²\n🏠 Distribución del Edificio\nTotal: 17 apartamentos\n🔹 Primer nivel (2 unidades sin parqueo):\n• 1 habitación\n• Sala\n• Comedor\n• Cocina\n• 1 apartamento tipo estudio\n🔹 14 apartamentos (51 m² – 56 m²):\n• 1 habitación\n• Sala\n• Comedor\n• Cocina con desayunador\n• Balcón\n• Área de lavado\n• 1 parqueo\n🔹 1 apartamento 2DO NIVEL amplio (181 m²):\n• 3 habitaciones\n• Sala\n• Comedor\n• Cocina con desayunador\n• Balcón + terraza\n• Área de lavado\n• 1 parqueo\n🔹 Quinto nivel:\n• Área de tendedero\n💼 Estado Actual\n✅ Todos los apartamentos se encuentran rentados\n👉 Generando ingresos desde el primer día\n________\n⚙️ Características del Edificio\n✔ Pozo\n✔ Cisterna con bomba automatizada\n✔ Portón eléctrico\n✔ Inversor para áreas comunes\n✔ Totalmente enverjado\n✔ Gas por tubería\n✔ Sistema de cámaras de seguridad\n✔ Personal de limpieza\n✔ Área de desechos organizada\n🏢 Detalles Importantes\n• La mayoría de los apartamentos cuentan con balcón\n• Excepción: unidades del 2do nivel (con terraza y balcón en habitación principal)\n• Propiedad al día con impuestos fiscales\n________\n📞 Ideal para inversionistas que buscan flujo de efectivo inmediato en una zona estratégica.\n📩 Contáctanos para más información o agendar visita."
     }
   ]
