@@ -149,7 +149,7 @@
       "location": "Santo Domingo Este",
       "title": "Apartamento en San Isidro ",
       "parking": 1,
-      "is_published": false,
+      "is_published": true,
       "type": "Apartamento",
       "tag": "Nueva",
       "image": "/uploads/1000001434.jpg",
