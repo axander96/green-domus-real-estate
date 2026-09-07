@@ -48,12 +48,10 @@
         "/uploads/1000001375.jpg"
       ],
       "location": "Punta Cana",
-      "amenities": [
-        null
-      ],
+      "amenities": [],
       "title": "Las Canas Rock",
       "parking": 1,
-      "is_published": false,
+      "is_published": true,
       "type": "Apartamento",
       "tag": "Exclusivo",
       "image": "/uploads/1000001410.jpg",
