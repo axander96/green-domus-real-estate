@@ -2,7 +2,7 @@
   "properties": [
     {
       "baths": 1,
-      "is_featured": true,
+      "is_featured": false,
       "sector": "Urbanización Miramar",
       "operation": "Venta",
       "price": 55000000,
@@ -19,7 +19,7 @@
       ],
       "location": "Autopista 30 de mayo",
       "title": "Venta de edificio completo",
-      "is_published": false,
+      "is_published": true,
       "type": "Apartamento",
       "tag": "Inversion",
       "image": "/uploads/1000001452.jpg",
