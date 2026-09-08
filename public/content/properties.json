@@ -127,7 +127,7 @@
     },
     {
       "baths": 2,
-      "is_featured": true,
+      "is_featured": false,
       "sector": "San Isidro ",
       "operation": "Venta",
       "price": 7000000,
