@@ -345,6 +345,96 @@
       "tag": "Nueva",
       "image": "/uploads/1000001430.jpg",
       "description": "Sala-comedor\nCocina\nDesayunador \nÁrea de lavado\nParqueo techado\nMantenimiento: RD$ 800\n"
+    },
+    {
+      "baths": 2,
+      "is_featured": false,
+      "operation": "Venta",
+      "price": 5750000,
+      "floor": 4,
+      "area": 138.4,
+      "code": "GD-1661",
+      "currency": "RD$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/1000001638.jpg",
+        "/uploads/1000001634.jpg",
+        "/uploads/1000001636.jpg",
+        "/uploads/1000001640.jpg",
+        "/uploads/1000001635.jpg",
+        "/uploads/1000001637.jpg"
+      ],
+      "location": "Santo Domingo Este ",
+      "amenities": [
+        "Balcón"
+      ],
+      "title": "Apartamento en Lucerna",
+      "parking": 2,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Oportunidad ",
+      "image": "/uploads/1000001647.jpg",
+      "description": "Amplia sala \nComedor \nCocina\nMantenimiento de: RD$ 1,170\nActualmente rentado: RD$ 20.900"
+    },
+    {
+      "baths": 1,
+      "is_featured": false,
+      "operation": "Venta",
+      "price": 2900000,
+      "floor": 4,
+      "area": 62.66,
+      "code": "GD-1181",
+      "currency": "RD$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/1000001651.jpg",
+        "/uploads/1000001650.jpg",
+        "/uploads/1000001657.jpg",
+        "/uploads/1000001652.jpg",
+        "/uploads/1000001656.jpg",
+        "/uploads/1000001653.jpg"
+      ],
+      "location": "Santo Domingo Este ",
+      "amenities": [
+        "Balcón"
+      ],
+      "title": "Apartamento en Invivienda ",
+      "parking": 1,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Oportunidad ",
+      "image": "/uploads/1000001648.jpg",
+      "description": "Sala \nComedor \nAmplia cocina \nClóset en casa habitación "
+    },
+    {
+      "baths": 1,
+      "is_featured": false,
+      "operation": "Venta",
+      "price": 4950000,
+      "floor": 1,
+      "area": 90.33,
+      "code": "GD-4067",
+      "currency": "RD$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/1000001615.jpg",
+        "/uploads/1000001617.jpg",
+        "/uploads/1000001621.jpg",
+        "/uploads/1000001619.jpg",
+        "/uploads/1000001616.jpg",
+        "/uploads/1000001618.jpg"
+      ],
+      "location": "Santo Domingo Este ",
+      "amenities": [
+        "Vigilancia 24 horas"
+      ],
+      "title": "Apartamento en Los Frailes ",
+      "parking": 1,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Oportunidad ",
+      "image": "/uploads/1000001612.jpg",
+      "description": "Amplia sala\nComedor\nCocina funcional \n"
     }
   ]
 }
