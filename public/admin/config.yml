@@ -120,9 +120,8 @@ collections:
                 name: "amenities"
                 widget: "list"
                 required: false
-                hint: "Agrega las amenidades una por una. Puedes elegir una sugerida o escribir una nueva."
+                hint: "Agrega solo las amenidades de esta propiedad. Escribe una nueva cuando sea necesario."
                 field:
                   label: "Amenidad"
                   name: "amenity"
-                  widget: "select"
-                  options: [Ascensor, Balcón, "Cocina Caliente", "Cuarto de Servicio", "Estacionamiento techado", "Gas común", Lobby, "NO AIRBNB FRIENDLY", "No se aceptan mascotas", "Parqueos Paralelos", "Planta Eléctrica", Portero, "Portón Eléctrico", "Residencial Cerrado", "Vigilancia 24 horas"]
+                  widget: "string"

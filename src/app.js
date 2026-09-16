@@ -71,6 +71,7 @@ let activeSlide = 0;
 let activeFilter = 'Todos';
 let searchTerm = '';
 let adminProperties = [];
+let adminAmenities = [];
 let adminMessage = '';
 let editingPropertyId = null;
 let adminLoading = false;
@@ -79,9 +80,10 @@ let adminAuthenticated = false;
 let settingsLoaded = false;
 let activePropertyCurrency = 'US$';
 
-function mapRemoteProperty(property, images = []) {
+function mapRemoteProperty(property, images = [], propertyAmenities = []) {
   const galleryRecords = images.filter((image) => image.property_id === property.id).sort((a, b) => a.sort_order - b.sort_order);
-  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), currency: property.currency || 'US$', location: property.location, sector: property.sector || '', area: Number(property.area), floor: property.floor || 0, parking: property.parking || 0, beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
+  const amenities = propertyAmenities.filter((item) => item.property_id === property.id).map((item) => item.amenity?.name || item.name).filter(Boolean);
+  return { id: property.id, code: property.code, title: property.title, type: property.type, operation: property.operation, price: Number(property.price), currency: property.currency || 'US$', location: property.location, sector: property.sector || '', area: Number(property.area), floor: property.floor || 0, parking: property.parking || 0, beds: property.beds, baths: property.baths, tag: property.tag, image: property.image_url, gallery: galleryRecords.map((image) => image.image_url), galleryRecords, amenities, description: property.description, is_published: property.is_published, is_featured: property.is_featured };
 }
 
 async function loadAdminProperties() {
@@ -101,7 +103,10 @@ async function loadAdminProperties() {
   const { data, error } = await supabase.from('properties').select('*').order('created_at', { ascending: false });
   if (error) { adminMessage = error.message; adminAuthenticated = false; adminLoading = false; adminLoaded = true; render(); return; }
   const { data: images } = data?.length ? await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id)) : { data: [] };
-  adminProperties = (data || []).map((property) => mapRemoteProperty(property, images || []));
+  const { data: propertyAmenities } = data?.length ? await supabase.from('property_amenities').select('property_id, amenity:amenities(id, name)').in('property_id', data.map((property) => property.id)) : { data: [] };
+  const { data: amenities } = await supabase.from('amenities').select('id, name').order('name');
+  adminAmenities = amenities || [];
+  adminProperties = (data || []).map((property) => mapRemoteProperty(property, images || [], propertyAmenities || []));
   adminAuthenticated = true;
   adminLoading = false;
   adminLoaded = true;
@@ -134,7 +139,8 @@ async function syncProperties() {
   if (error) return;
   if (!data?.length) { properties = []; render(); return; }
   const { data: images } = await supabase.from('property_images').select('*').in('property_id', data.map((property) => property.id));
-  properties = data.map((property) => mapRemoteProperty(property, images || []));
+  const { data: propertyAmenities } = await supabase.from('property_amenities').select('property_id, amenity:amenities(name)').in('property_id', data.map((property) => property.id));
+  properties = data.map((property) => mapRemoteProperty(property, images || [], propertyAmenities || []));
   render();
 }
 
@@ -313,7 +319,7 @@ function allPropertiesTemplate() {
 function detailTemplate(property) {
   activePropertyCurrency = property.currency || 'US$';
   const gallery = propertyGallery(property);
-  const amenities = property.amenities?.length ? property.amenities : (contentSettings.amenities?.length ? contentSettings.amenities : ['Acceso discapacitados', 'Comedor', 'Aire acondicionado', 'Cuarto de servicio', 'Amueblado', 'Garaje', 'Área social', 'Jardín', 'Baños', 'Mascotas permitidas', 'BBQ', 'Patio', 'Casa Club', 'Piscina', 'Cocina', 'Playa', 'Cocina Caliente', 'Recibidor', 'Terraza Exclusiva']);
+  const amenities = property.amenities || [];
   const contactMessage = `Hola ${contentSettings.agent_name}, estoy interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?`;
   const generalSector = property.sector ? `<span><small>Sector</small><b>${property.sector}</b></span>` : '';
     return `<div class="page-shell">${headerTemplate()}<main class="detail-page"><a href="#all" class="back-link">${icon('arrow')} Volver a propiedades</a><div class="detail-layout"><div class="detail-left"><div class="detail-gallery"><img src="${gallery[0]}" alt="${property.title}"/><div class="gallery-note">${property.tag}<span>Código ${propertyCode(property)}</span></div></div><div class="detail-thumbnails">${gallery.map((image, index) => `<button class="detail-thumbnail ${index === 0 ? 'active' : ''}" data-gallery-image="${image}" aria-label="Ver imagen ${index + 1}"><img src="${image}" alt=""/></button>`).join('')}</div><section class="property-panel description-panel"><h3>Descripción</h3><div class="description-copy"><p>${property.description}</p><p>Diseñada para quienes valoran la ubicación, la calidad y la posibilidad de hacer suyo cada rincón. Conoce todos los detalles conversando con nuestro equipo.</p></div></section><section class="property-panel"><h3>Información General</h3><div class="general-grid"><span><small>Código de la inmobiliaria</small><b>${propertyCode(property)}</b></span><span><small>Tipo</small><b>${property.type}</b></span><span><small>Operación</small><b>${property.operation}</b></span><span><small>Ubicación</small><b>${property.location}</b></span><span><small>Habitaciones</small><b>${property.beds || 0}</b></span><span><small>Baños</small><b>${property.baths || 0}</b></span><span><small>Área total</small><b>${property.area} m²</b></span><span><small>Precio</small><b>${formatPrice(property.price, property.operation)}</b></span></div></section><section class="property-panel"><h3>Amenidades</h3><div class="amenities-grid">${amenities.map((amenity) => `<span>${icon('check')}${amenity}</span>`).join('')}</div></section></div><div class="detail-right"><div class="detail-summary"><div class="property-meta"><span>${property.operation}</span><span>${property.type}</span></div><h1>${property.title}</h1><p class="location">${icon('pin')}${property.location}</p><strong class="detail-price">${formatPrice(property.price, property.operation)}</strong><div class="detail-specs"><span>${icon('area')}<b>${property.area} m²</b>Área total</span>${property.beds ? `<span>${icon('bed')}<b>${property.beds}</b>Habitaciones</span>` : ''}${property.baths ? `<span>${icon('bath')}<b>${property.baths}</b>Baños</span>` : ''}</div></div><aside class="agent-card"><div class="agent-heading"><div class="agent-avatar">AS</div><div><h3>Asdrúbal Salas</h3><p>Agente de bienes raíces</p></div></div><div class="agent-contact"><a href="tel:+18096711120">${icon('phone')} (809) 671-1120</a><a href="tel:+18296847760">${icon('phone')} (829) 684-7760</a><a href="mailto:greendomusrealestate@gmail.com">${icon('mail')} greendomusrealestate@gmail.com</a></div><textarea readonly>Hola Asdrúbal, tengo un cliente interesado en esta propiedad (código ${propertyCode(property)}). ¿Sigue disponible?</textarea><a class="whatsapp-button" href="${whatsappUrl(property)}" target="_blank" rel="noreferrer">${icon('whatsapp')} Enviar este mensaje ${icon('arrow')}</a></aside></div></div></main></div>`;
@@ -325,7 +331,7 @@ function adminModal() {
 
 function adminPageTemplate() {
   const rows = adminProperties.map((property) => `<article class="admin-property-row"><img src="${property.image}" alt=""/><div class="admin-property-info"><div><span class="admin-status ${property.is_published ? 'published' : ''}">${property.is_published ? 'Publicada' : 'Borrador'}</span>${property.is_featured ? '<span class="admin-featured">Destacada</span>' : ''}</div><h3>${property.title}</h3><p>${propertyCode(property)} · ${property.location}</p><strong>${formatPrice(property.price, property.operation)}</strong></div><div class="admin-property-actions"><button type="button" data-admin-action="edit" data-property-id="${property.id}">Editar</button><button type="button" data-admin-action="toggle" data-property-id="${property.id}">${property.is_published ? 'Despublicar' : 'Publicar'}</button><button type="button" data-admin-action="feature" data-property-id="${property.id}">${property.is_featured ? 'Quitar destacada' : 'Destacar'}</button><button type="button" class="danger" data-admin-action="delete" data-property-id="${property.id}">Eliminar</button></div></article>`).join('');
-  const editing = adminProperties.find((property) => property.id === editingPropertyId);
+  const editing = editingPropertyId === 0 ? {} : adminProperties.find((property) => property.id === editingPropertyId);
   const adminContent = adminAuthenticated ? `<div class="admin-toolbar"><div><p class="eyebrow dark">CATÁLOGO</p><h2>${adminProperties.length} propiedades</h2></div><button class="primary-button" type="button" data-admin-action="new">${icon('plus')} Nueva propiedad</button></div><div class="admin-property-list">${rows || '<div class="admin-empty">Todavía no hay propiedades en Supabase.</div>'}</div>${editing ? adminEditForm(editing) : ''}${adminSettingsForm()}` : '<div class="admin-locked">Después de iniciar sesión y validar los permisos aparecerá aquí el catálogo.</div>';
   return `<div class="page-shell">${headerTemplate()}<main class="admin-page"><a href="#" class="back-link">${icon('arrow')} Volver al sitio</a><div class="admin-page-intro"><p class="eyebrow dark">GREEN DOMUS · ADMINISTRACIÓN</p><h1>Gestiona tu<br/><em>catálogo.</em></h1><p>Publica, edita y organiza tus propiedades desde un solo lugar.</p></div><section class="admin-console"><div class="admin-auth-bar"><div><strong>Acceso administrador</strong><span id="admin-session-label">${adminMessage || 'Inicia sesión para gestionar el catálogo.'}</span></div><form id="admin-auth-form"><input name="email" type="email" required placeholder="Correo"/><input name="password" type="password" required placeholder="Contraseña"/><button class="primary-button" type="submit">Iniciar sesión</button></form></div><p class="auth-status" id="admin-status">${adminMessage}</p>${adminContent}</section></main></div>`;
 }
@@ -337,7 +343,9 @@ function adminSettingsForm() {
 
 function adminEditForm(property = {}) {
   const existingImages = (property.galleryRecords || []).map((image) => `<div class="existing-image"><img src="${image.image_url}" alt=""/><button type="button" data-admin-action="delete-image" data-image-id="${image.id}" aria-label="Eliminar imagen">Eliminar</button></div>`).join('');
-  return `<div class="admin-editor" id="admin-editor"><div class="admin-editor-heading"><div><p class="eyebrow dark">${property.id ? 'EDITAR PROPIEDAD' : 'NUEVA PROPIEDAD'}</p><h2>${property.id ? property.title : 'Agregar propiedad'}</h2></div><button type="button" data-admin-action="close-editor">Cerrar</button></div><form id="admin-property-form" data-property-id="${property.id || ''}"><div class="form-columns"><label>Título<input name="title" required value="${property.title || ''}" /></label><label>Código<input name="code" required value="${property.code || ''}" /></label></div><div class="form-columns"><label>Tipo<select name="type">${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option ${property.type === type ? 'selected' : ''}>${type}</option>`).join('')}</select></label><label>Operación<select name="operation"><option ${property.operation === 'Venta' ? 'selected' : ''}>Venta</option><option ${property.operation === 'Alquiler' ? 'selected' : ''}>Alquiler</option></select></label></div><div class="form-columns"><label>Precio (USD)<input name="price" type="number" required value="${property.price || ''}" /></label><label>Área (m²)<input name="area" type="number" required value="${property.area || ''}" /></label></div><div class="form-columns"><label>Habitaciones<input name="beds" type="number" min="0" value="${property.beds || 0}" /></label><label>Baños<input name="baths" type="number" min="0" value="${property.baths || 0}" /></label></div><label>Ubicación<input name="location" required value="${property.location || ''}" /></label><label>Descripción<textarea name="description" rows="5" required>${property.description || ''}</textarea></label><label>Imagen principal<input name="cover_image" type="file" accept="image/*" ${property.id ? '' : 'required'} /><small class="file-help">${property.id ? 'Selecciona una imagen solo si deseas reemplazar la portada.' : 'La portada se guardará en Supabase Storage.'}</small></label><label>Galería de imágenes<input name="images" type="file" accept="image/*" multiple /><small class="file-help">Puedes seleccionar varias imágenes adicionales.</small></label>${existingImages ? `<div class="existing-images"><span>Imágenes guardadas</span>${existingImages}</div>` : ''}<div class="editor-options"><label><input name="is_published" type="checkbox" ${property.is_published !== false ? 'checked' : ''}/> Publicar propiedad</label><label><input name="is_featured" type="checkbox" ${property.is_featured ? 'checked' : ''}/> Destacar en inicio</label></div><button class="primary-button" type="submit">${property.id ? 'Guardar cambios' : 'Crear propiedad'} ${icon('arrow')}</button></form></div>`;
+  const selectedAmenities = new Set(property.amenities || []);
+  const amenityOptions = adminAmenities.map((amenity) => `<label><input name="amenities" type="checkbox" value="${amenity.id}" ${selectedAmenities.has(amenity.name) ? 'checked' : ''}/> ${amenity.name}</label>`).join('');
+  return `<div class="admin-editor" id="admin-editor"><div class="admin-editor-heading"><div><p class="eyebrow dark">${property.id ? 'EDITAR PROPIEDAD' : 'NUEVA PROPIEDAD'}</p><h2>${property.id ? property.title : 'Agregar propiedad'}</h2></div><button type="button" data-admin-action="close-editor">Cerrar</button></div><form id="admin-property-form" data-property-id="${property.id || ''}"><div class="form-columns"><label>Título<input name="title" required value="${property.title || ''}" /></label><label>Código<input name="code" required value="${property.code || ''}" /></label></div><div class="form-columns"><label>Tipo<select name="type">${['Apartamento', 'Casa', 'Villa', 'Terreno', 'Local comercial', 'Oficina', 'Proyecto inmobiliario'].map((type) => `<option ${property.type === type ? 'selected' : ''}>${type}</option>`).join('')}</select></label><label>Operación<select name="operation"><option ${property.operation === 'Venta' ? 'selected' : ''}>Venta</option><option ${property.operation === 'Alquiler' ? 'selected' : ''}>Alquiler</option></select></label></div><div class="form-columns"><label>Precio (USD)<input name="price" type="number" required value="${property.price || ''}" /></label><label>Área (m²)<input name="area" type="number" required value="${property.area || ''}" /></label></div><div class="form-columns"><label>Habitaciones<input name="beds" type="number" min="0" value="${property.beds || 0}" /></label><label>Baños<input name="baths" type="number" min="0" value="${property.baths || 0}" /></label></div><label>Ubicación<input name="location" required value="${property.location || ''}" /></label><label>Descripción<textarea name="description" rows="5" required>${property.description || ''}</textarea></label><fieldset class="amenity-editor"><legend>Amenidades seleccionadas</legend><div class="amenity-options">${amenityOptions || '<small class="file-help">Todavía no hay amenidades creadas.</small>'}</div><label>Crear amenidad nueva<input name="new_amenity" placeholder="Ej. Área de juegos" /></label><small class="file-help">La amenidad nueva se guardará y quedará seleccionada en esta propiedad.</small></fieldset><label>Imagen principal<input name="cover_image" type="file" accept="image/*" ${property.id ? '' : 'required'} /><small class="file-help">${property.id ? 'Selecciona una imagen solo si deseas reemplazar la portada.' : 'La portada se guardará en Supabase Storage.'}</small></label><label>Galería de imágenes<input name="images" type="file" accept="image/*" multiple /><small class="file-help">Puedes seleccionar varias imágenes adicionales.</small></label>${existingImages ? `<div class="existing-images"><span>Imágenes guardadas</span>${existingImages}</div>` : ''}<div class="editor-options"><label><input name="is_published" type="checkbox" ${property.is_published !== false ? 'checked' : ''}/> Publicar propiedad</label><label><input name="is_featured" type="checkbox" ${property.is_featured ? 'checked' : ''}/> Destacar en inicio</label></div><button class="primary-button" type="submit">${property.id ? 'Guardar cambios' : 'Crear propiedad'} ${icon('arrow')}</button></form></div>`;
 }
 
 function filteredProperties() {
@@ -382,7 +390,7 @@ async function saveSiteSettings(event) {
 }
 
 async function handleAdminAction(action, propertyId) {
-  if (action === 'new') { editingPropertyId = null; render(); setTimeout(() => document.querySelector('#admin-editor')?.scrollIntoView({ behavior: 'smooth' }), 0); return; }
+  if (action === 'new') { editingPropertyId = 0; render(); setTimeout(() => document.querySelector('#admin-editor')?.scrollIntoView({ behavior: 'smooth' }), 0); return; }
   if (action === 'close-editor') { editingPropertyId = null; render(); return; }
   const property = adminProperties.find((item) => item.id === propertyId);
   if (!property || !supabase) return;
@@ -402,6 +410,8 @@ async function saveAdminProperty(event) {
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) { adminMessage = 'Inicia sesión antes de guardar.'; render(); return; }
   const existing = adminProperties.find((property) => property.id === propertyId);
+  const selectedAmenityIds = data.getAll('amenities').map((id) => Number(id)).filter(Boolean);
+  const newAmenityName = String(data.get('new_amenity') || '').trim();
   const coverFile = data.get('cover_image');
   if (!propertyId && (!(coverFile instanceof File) || !coverFile.size)) { adminMessage = 'Selecciona una imagen principal.'; render(); return; }
   const payload = { code: data.get('code'), title: data.get('title'), type: data.get('type'), operation: data.get('operation'), price: Number(data.get('price')), location: data.get('location'), area: Number(data.get('area')), beds: Number(data.get('beds') || 0), baths: Number(data.get('baths') || 0), description: data.get('description'), image_url: existing?.image || '', is_published: data.get('is_published') === 'on', is_featured: data.get('is_featured') === 'on', created_by: sessionData.session.user.id };
@@ -415,6 +425,17 @@ async function saveAdminProperty(event) {
   if (uploadedCover[0]) { const { error: coverError } = await supabase.from('properties').update({ image_url: uploadedCover[0] }).eq('id', saved.id); if (coverError) { adminMessage = coverError.message; render(); return; } }
   const uploaded = await uploadPropertyImages(saved.id, files);
   if (uploaded.length) { await supabase.from('property_images').insert(uploaded.map((image, index) => ({ property_id: saved.id, image_url: image, sort_order: index }))); }
+  if (newAmenityName) {
+    const { data: createdAmenity, error: amenityError } = await supabase.from('amenities').upsert({ name: newAmenityName }, { onConflict: 'name' }).select('id, name').single();
+    if (amenityError) { adminMessage = amenityError.message; render(); return; }
+    if (createdAmenity && !selectedAmenityIds.includes(createdAmenity.id)) selectedAmenityIds.push(createdAmenity.id);
+  }
+  const { error: clearAmenitiesError } = await supabase.from('property_amenities').delete().eq('property_id', saved.id);
+  if (clearAmenitiesError) { adminMessage = clearAmenitiesError.message; render(); return; }
+  if (selectedAmenityIds.length) {
+    const { error: amenityLinkError } = await supabase.from('property_amenities').insert(selectedAmenityIds.map((amenityId) => ({ property_id: saved.id, amenity_id: amenityId })));
+    if (amenityLinkError) { adminMessage = amenityLinkError.message; render(); return; }
+  }
   adminMessage = propertyId ? 'Propiedad actualizada.' : 'Propiedad creada.';
   editingPropertyId = null;
   await loadAdminProperties();
