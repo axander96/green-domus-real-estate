@@ -184,7 +184,7 @@
     },
     {
       "baths": 1,
-      "is_featured": true,
+      "is_featured": false,
       "sector": "Ensanche Serrallés",
       "operation": "Venta",
       "price": 170000,
@@ -215,7 +215,7 @@
     },
     {
       "baths": 2,
-      "is_featured": true,
+      "is_featured": false,
       "operation": "Venta",
       "price": 129000,
       "area": 94,
