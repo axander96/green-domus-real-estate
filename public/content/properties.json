@@ -538,6 +538,72 @@
       "tag": "Nueva",
       "image": "/uploads/1000001696.jpg",
       "description": "4to y 5to nivel \n47 M2 de terraza \nSala-comedor-cocina\nÁrea de lavado \nControl de acceso "
+    },
+    {
+      "baths": 2,
+      "is_featured": true,
+      "sector": "Alma Rosa I",
+      "operation": "Venta",
+      "price": 270000,
+      "floor": 12,
+      "area": 124,
+      "code": "GD-3030",
+      "currency": "US$",
+      "beds": 2,
+      "gallery": [
+        "/uploads/1000001757.jpg",
+        "/uploads/1000001747.jpg",
+        "/uploads/1000001748.jpg",
+        "/uploads/1000001755.jpg"
+      ],
+      "location": "Santo Domingo Este ",
+      "amenities": [
+        "Lobby climatizado",
+        "Piscina ",
+        "Salón de eventos ",
+        "Área Infantil ",
+        "Ascensores de última generación "
+      ],
+      "title": "Torre en ALMA ROSA",
+      "parking": 2,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Exclusivo ",
+      "image": "/uploads/1000001756.jpg",
+      "description": "Bella torre con vista espectacular de unas de las mejores zonas de Santo Domingo Este."
+    },
+    {
+      "baths": 3,
+      "is_featured": true,
+      "sector": "Alma Rosa I ",
+      "operation": "Venta",
+      "price": 315000,
+      "floor": 8,
+      "area": 153,
+      "code": "GD-2020",
+      "currency": "US$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/1000001746.jpg",
+        "/uploads/1000001746.jpg"
+      ],
+      "location": "Santo Domingo Este ",
+      "amenities": [
+        "Lobby",
+        "Ascensor de ultima generación ",
+        "Gimnasio equipado ",
+        "Picuzzi",
+        "Lockers",
+        "Área social ",
+        "Conserjería "
+      ],
+      "title": "Torre en Alma Rosa",
+      "parking": 2,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Exclusivo ",
+      "image": "/uploads/1000001752.jpg",
+      "description": "Moderna torre en Zona exclusiva de Santo Domingo Este, con numerosas  amenidades para confort y comodidad del inversionista."
     }
   ]
 }
