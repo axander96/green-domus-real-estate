@@ -604,6 +604,115 @@
       "tag": "Exclusivo ",
       "image": "/uploads/1000001752.jpg",
       "description": "Moderna torre en Zona exclusiva de Santo Domingo Este, con numerosas  amenidades para confort y comodidad del inversionista."
+    },
+    {
+      "baths": 3,
+      "is_featured": false,
+      "sector": "",
+      "operation": "Venta",
+      "price": 14200000,
+      "area": 266.07,
+      "code": "GD-4554",
+      "currency": "RD$",
+      "beds": 3,
+      "gallery": [
+        "/uploads/1000001850.jpg",
+        "/uploads/1000001845.jpg",
+        "/uploads/1000001844.jpg",
+        "/uploads/1000001848.jpg",
+        "/uploads/1000001851.jpg",
+        "/uploads/1000001843.jpg",
+        "/uploads/1000001847.jpg",
+        "/uploads/1000001854.jpg",
+        "/uploads/1000001846.jpg",
+        "/uploads/1000001855.jpg"
+      ],
+      "location": "San Isidro ",
+      "amenities": [
+        "Terraza techada y destechada",
+        "Amplio patio"
+      ],
+      "title": "Casa en Santo Domingo Este ",
+      "parking": 2,
+      "is_published": true,
+      "type": "Casa",
+      "tag": "Nueva",
+      "image": "/uploads/1000001853.jpg",
+      "description": "Terreno de 239.84 M2\nHabitación principal con walk-in clóset y baño.\n\nMedio baño de visita \nSala familiar \nCuarto de servicio \nÁrea de lavado\nMarquesina doble \n\n"
+    },
+    {
+      "baths": 1,
+      "is_featured": false,
+      "operation": "Venta",
+      "price": 165000,
+      "floor": 6,
+      "area": 87.5,
+      "code": "GD-8090",
+      "currency": "US$",
+      "beds": 1,
+      "gallery": [
+        "/uploads/1000001879.jpg",
+        "/uploads/1000001890.jpg",
+        "/uploads/1000001883.jpg",
+        "/uploads/1000001885.jpg",
+        "/uploads/1000001900.jpg",
+        "/uploads/1000001884.jpg",
+        "/uploads/1000001892.jpg",
+        "/uploads/1000001898.jpg",
+        "/uploads/1000001899.jpg"
+      ],
+      "location": "Zona Universitaria ",
+      "amenities": [
+        "Elevador",
+        "Terraza con vista al mar"
+      ],
+      "title": "Apartamento en Zona Universitaria ",
+      "parking": 1,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Nueva",
+      "image": "/uploads/1000001887.jpg",
+      "description": "\"Completamente amueblado\""
+    },
+    {
+      "baths": 2,
+      "is_featured": false,
+      "sector": "Evaristo Morales ",
+      "operation": "Venta",
+      "price": 229900,
+      "area": 122,
+      "code": "GD-9229",
+      "currency": "US$",
+      "beds": 2,
+      "gallery": [
+        "/uploads/1000001841.jpg",
+        "/uploads/1000001838.jpg",
+        "/uploads/1000001824.jpg",
+        "/uploads/1000001825.jpg",
+        "/uploads/1000001830.jpg",
+        "/uploads/1000001826.jpg",
+        "/uploads/1000001839.jpg"
+      ],
+      "location": "Distrito Nacional ",
+      "amenities": [
+        "Lobby climatizado ",
+        "Área social con piscina ",
+        "Gimnasio equipado ",
+        "Salón de eventos ",
+        "Área de BBQ",
+        "Terrazas techadas y destechadas ",
+        "Área de juegos ",
+        "2 ascensores ",
+        "Generador eléctrico full ",
+        "Seguridad 24/7"
+      ],
+      "title": "Apartamento en Evaristo Morales",
+      "parking": 2,
+      "is_published": true,
+      "type": "Apartamento",
+      "tag": "Nueva",
+      "image": "/uploads/1000001836.jpg",
+      "description": "Ubicación estratégica con fácil acceso a comercios, restaurantes, centros de servicios y principales vías de la ciudad.\n\nÁrea de lavado\nHabitación de servicio \nParqueos lineales \n"
     }
   ]
 }
