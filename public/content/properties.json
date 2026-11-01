@@ -574,7 +574,7 @@
     },
     {
       "baths": 3,
-      "is_featured": true,
+      "is_featured": false,
       "sector": "Alma Rosa I ",
       "operation": "Venta",
       "price": 315000,
